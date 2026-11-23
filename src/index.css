@@ -1,0 +1,68 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Plus Jakarta Sans", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+}
+
+@layer base {
+  body {
+    font-family: var(--font-sans);
+    background-color: #f8fafc;
+    color: #0f172a;
+  }
+}
+
+/* Custom accessible range slider */
+input[type="range"].sim-slider {
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+input[type="range"].sim-slider::-webkit-slider-runnable-track {
+  height: 8px;
+  border-radius: 9999px;
+  background: #e2e8f0;
+}
+
+input[type="range"].sim-slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 20px;
+  width: 20px;
+  border-radius: 9999px;
+  background: #0284c7;
+  border: 3px solid #ffffff;
+  box-shadow: 0 1px 4px rgba(15, 23, 42, 0.25);
+  margin-top: -6px;
+  transition: transform 0.15s ease;
+}
+
+input[type="range"].sim-slider.teal-slider::-webkit-slider-thumb {
+  background: #0d9488;
+}
+
+input[type="range"].sim-slider::-webkit-slider-thumb:hover {
+  transform: scale(1.12);
+}
+
+input[type="range"].sim-slider::-moz-range-track {
+  height: 8px;
+  border-radius: 9999px;
+  background: #e2e8f0;
+}
+
+input[type="range"].sim-slider::-moz-range-thumb {
+  height: 20px;
+  width: 20px;
+  border-radius: 9999px;
+  background: #0284c7;
+  border: 3px solid #ffffff;
+  box-shadow: 0 1px 4px rgba(15, 23, 42, 0.25);
+}
+
+input[type="range"].sim-slider.teal-slider::-moz-range-thumb {
+  background: #0d9488;
+}

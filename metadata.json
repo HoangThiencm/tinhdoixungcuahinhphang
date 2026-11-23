@@ -1,0 +1,6 @@
+{
+  "name": "Khám Phá Tính Đối Xứng Của Hình Phẳng",
+  "description": "Ứng dụng mô phỏng tương tác dạy học Toán lớp 6 – Chủ đề Tính đối xứng của hình phẳng (Bài 21: Hình có trục đối xứng và Bài 22: Hình có tâm đối xứng).",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
