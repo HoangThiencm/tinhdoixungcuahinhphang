@@ -15,9 +15,10 @@ Trạng thái: HOÀN THÀNH
 
 ## Kiểm tra đã chạy
 
-- `npm run lint`
-- `npm run build`
+- `npm run lint` — PASS
+- `npm run build` — PASS
 
 ## Ghi chú
 
+- Commit đầu tiên đã được đẩy lên `origin/main`.
 - Sau khi đẩy nhánh thành công, tệp khóa `docs/handoff/.lock` được xóa khỏi thư mục làm việc theo yêu cầu. Tệp này luôn bị Git bỏ qua.
