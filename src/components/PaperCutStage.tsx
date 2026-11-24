@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import type { PaperCutActivity } from '../types/symmetry';
 
 interface PaperCutStageProps {
@@ -6,6 +6,7 @@ interface PaperCutStageProps {
   /** Continuous timeline value from 0 to steps.length - 1 */
   timeline: number;
   showReference: boolean;
+  onTimelineChange: (timeline: number) => void;
 }
 
 function clamp01(v: number) {
@@ -20,8 +21,28 @@ export const PaperCutStage: React.FC<PaperCutStageProps> = ({
   activity,
   timeline,
   showReference,
+  onTimelineChange,
 }) => {
   const { variant } = activity;
+  const dragStart = useRef<{ x: number; timeline: number } | null>(null);
+  const pointerProps = {
+    style: { touchAction: 'none', cursor: dragStart.current ? 'grabbing' : 'grab' },
+    onPointerDown: (event: React.PointerEvent<SVGSVGElement>) => {
+      event.currentTarget.setPointerCapture(event.pointerId);
+      dragStart.current = { x: event.clientX, timeline };
+    },
+    onPointerMove: (event: React.PointerEvent<SVGSVGElement>) => {
+      if (!dragStart.current) return;
+      const width = Math.max(event.currentTarget.getBoundingClientRect().width, 1);
+      const max = Math.max(1, activity.steps.length - 1);
+      onTimelineChange(Math.max(0, Math.min(max, dragStart.current.timeline + (event.clientX - dragStart.current.x) / width * max)));
+    },
+    onPointerUp: (event: React.PointerEvent<SVGSVGElement>) => {
+      if (event.currentTarget.hasPointerCapture(event.pointerId)) event.currentTarget.releasePointerCapture(event.pointerId);
+      dragStart.current = null;
+    },
+    onPointerCancel: () => { dragStart.current = null; },
+  };
 
   // Helper to render crisp dashed crease line
   const renderCreaseV = (y1 = -148, y2 = 148, label = 'd') =>
@@ -105,6 +126,7 @@ export const PaperCutStage: React.FC<PaperCutStageProps> = ({
 
       return (
         <svg
+          {...pointerProps}
           viewBox="-220 -175 440 350"
           className="w-full h-auto max-h-[430px] select-none rounded-xl bg-white border border-slate-200"
           role="img"
@@ -229,6 +251,7 @@ export const PaperCutStage: React.FC<PaperCutStageProps> = ({
 
     return (
       <svg
+        {...pointerProps}
         viewBox="-220 -175 440 350"
         className="w-full h-auto max-h-[430px] select-none rounded-xl bg-white border border-slate-200"
         role="img"
@@ -277,6 +300,7 @@ export const PaperCutStage: React.FC<PaperCutStageProps> = ({
 
     return (
       <svg
+        {...pointerProps}
         viewBox="-220 -175 440 350"
         className="w-full h-auto max-h-[430px] select-none rounded-xl bg-white border border-slate-200"
         role="img"
@@ -393,6 +417,7 @@ export const PaperCutStage: React.FC<PaperCutStageProps> = ({
 
       return (
         <svg
+          {...pointerProps}
           viewBox="-220 -175 440 350"
           className="w-full h-auto max-h-[430px] select-none rounded-xl bg-white border border-slate-200"
           role="img"
@@ -495,6 +520,7 @@ export const PaperCutStage: React.FC<PaperCutStageProps> = ({
 
       return (
         <svg
+          {...pointerProps}
           viewBox="-220 -175 440 350"
           className="w-full h-auto max-h-[430px] select-none rounded-xl bg-white border border-slate-200"
           role="img"
@@ -533,6 +559,7 @@ export const PaperCutStage: React.FC<PaperCutStageProps> = ({
     return (
       <div className="relative w-full">
         <svg
+          {...pointerProps}
           viewBox="-220 -175 440 350"
           className="w-full h-auto max-h-[430px] select-none rounded-xl bg-white border border-slate-200"
           role="img"
@@ -579,6 +606,7 @@ export const PaperCutStage: React.FC<PaperCutStageProps> = ({
 
   return (
     <svg
+      {...pointerProps}
       viewBox="-220 -175 440 350"
       className="w-full h-auto max-h-[430px] select-none rounded-xl bg-white border border-slate-200"
       role="img"

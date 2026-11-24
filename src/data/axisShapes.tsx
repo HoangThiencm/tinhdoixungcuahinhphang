@@ -32,6 +32,49 @@ export const AXIS_GROUPS: ActivityGroup[] = [
     title: 'Nhóm 5: Mở rộng',
     subtitle: 'Chiếc lá đối xứng trong học tập',
   },
+  /*
+  {
+    id: 'axis-cham-tower',
+    tab: 'axis',
+    groupId: 'axis-g5',
+    mode: 'axis-fold',
+    title: 'Thử thách nhỏ – Tháp Chăm',
+    shortTitle: 'Tháp Chăm',
+    sourceRef: 'Bài 21 – Thử thách nhỏ, trang 101',
+    hasSymmetry: true,
+    axisCountLabel: '1 trục đối xứng',
+    candidateLines: [
+      { id: 'vertical', label: 'Đường dọc qua đỉnh tháp', px: 0, py: 0, angleDeg: 90, isSymmetryAxis: true, lineTag: 'd', explanation: 'Hai nửa của tháp chồng khít.' },
+      { id: 'horizontal', label: 'Đường ngang qua thân tháp', px: 0, py: 0, angleDeg: 0, isSymmetryAxis: false, lineTag: 'd₂', explanation: 'Đỉnh và chân tháp không trùng nhau.' },
+    ],
+    allTrueAxes: [{ px: 0, py: 0, angleDeg: 90, label: 'd' }],
+    predictQuestion: 'Tháp Chăm có trục đối xứng nào?',
+    observeQuestion: 'Kéo để gấp kiểm tra.',
+    overallConclusion: 'Tháp Chăm có một trục đối xứng dọc.',
+    renderShape: () => <g fill="#FDE68A" stroke="#92400E" strokeWidth="3" strokeLinejoin="round"><path d="M -82,125 L -72,-24 L 0,-142 L 72,-24 L 82,125 Z" /><path d="M -48,-24 L 0,-88 L 48,-24 Z" fill="#F59E0B" /><rect x="-23" y="48" width="46" height="77" fill="#78350F" /></g>,
+  },
+  {
+    id: 'axis-six-star',
+    tab: 'axis',
+    groupId: 'axis-g5',
+    mode: 'axis-fold',
+    title: 'Thử thách nhỏ – Ngôi sao sáu cánh',
+    shortTitle: 'Ngôi sao sáu cánh',
+    sourceRef: 'Bài 21 – Thử thách nhỏ, trang 101',
+    hasSymmetry: true,
+    axisCountLabel: '6 trục đối xứng',
+    candidateLines: [
+      { id: 'vertical', label: 'Đường dọc qua hai đỉnh', px: 0, py: 0, angleDeg: 90, isSymmetryAxis: true, lineTag: 'd₁', explanation: 'Hai nửa ngôi sao chồng khít.' },
+      { id: 'horizontal', label: 'Đường ngang qua hai đỉnh', px: 0, py: 0, angleDeg: 0, isSymmetryAxis: true, lineTag: 'd₂', explanation: 'Hai nửa ngôi sao chồng khít.' },
+      { id: 'off', label: 'Đường lệch khỏi tâm', px: 24, py: 0, angleDeg: 90, isSymmetryAxis: false, lineTag: 'd₃', explanation: 'Đường không đi qua tâm không phải trục đối xứng.' },
+    ],
+    allTrueAxes: [0, 30, 60, 90, 120, 150].map((angleDeg) => ({ px: 0, py: 0, angleDeg, label: 'd' })),
+    predictQuestion: 'Ngôi sao sáu cánh có bao nhiêu trục đối xứng?',
+    observeQuestion: 'Thử các đường đi qua tâm.',
+    overallConclusion: 'Ngôi sao sáu cánh có sáu trục đối xứng.',
+    renderShape: () => <g fill="#BFDBFE" stroke="#1D4ED8" strokeWidth="3" strokeLinejoin="round"><polygon points="0,-130 112,65 -112,65" /><polygon points="0,130 112,-65 -112,-65" /></g>,
+  },
+  */
 ];
 
 // Helper: Regular polygon points
@@ -248,6 +291,25 @@ function renderClover53c() {
 }
 
 export const AXIS_ACTIVITIES: SymmetryActivity[] = [
+  {
+    id: 'axis-cham-tower', tab: 'axis', groupId: 'axis-g5', mode: 'axis-fold',
+    title: 'Thử thách nhỏ – Tháp Chăm', shortTitle: 'Tháp Chăm', sourceRef: 'Bài 21 – Thử thách nhỏ, trang 101',
+    hasSymmetry: true, axisCountLabel: '1 trục đối xứng',
+    candidateLines: [
+      { id: 'vertical', label: 'Đường dọc qua đỉnh tháp', px: 0, py: 0, angleDeg: 90, isSymmetryAxis: true, lineTag: 'd', explanation: 'Hai nửa của tháp chồng khít.' },
+      { id: 'horizontal', label: 'Đường ngang qua thân tháp', px: 0, py: 0, angleDeg: 0, isSymmetryAxis: false, lineTag: 'd₂', explanation: 'Đỉnh và chân tháp không trùng nhau.' },
+    ],
+    allTrueAxes: [{ px: 0, py: 0, angleDeg: 90, label: 'd' }], predictQuestion: 'Tháp Chăm có trục đối xứng nào?', observeQuestion: 'Kéo để gấp kiểm tra.', overallConclusion: 'Tháp Chăm có một trục đối xứng dọc.',
+    renderShape: () => <g fill="#FDE68A" stroke="#92400E" strokeWidth="3" strokeLinejoin="round"><path d="M -82,125 L -72,-24 L 0,-142 L 72,-24 L 82,125 Z" /><path d="M -48,-24 L 0,-88 L 48,-24 Z" fill="#F59E0B" /><rect x="-23" y="48" width="46" height="77" fill="#78350F" /></g>,
+  },
+  {
+    id: 'axis-six-star', tab: 'axis', groupId: 'axis-g5', mode: 'axis-fold',
+    title: 'Thử thách nhỏ – Ngôi sao sáu cánh', shortTitle: 'Ngôi sao sáu cánh', sourceRef: 'Bài 21 – Thử thách nhỏ, trang 101',
+    hasSymmetry: true, axisCountLabel: '6 trục đối xứng',
+    candidateLines: [{ id: 'vertical', label: 'Đường dọc qua hai đỉnh', px: 0, py: 0, angleDeg: 90, isSymmetryAxis: true, lineTag: 'd₁', explanation: 'Hai nửa ngôi sao chồng khít.' }, { id: 'horizontal', label: 'Đường ngang qua hai đỉnh', px: 0, py: 0, angleDeg: 0, isSymmetryAxis: true, lineTag: 'd₂', explanation: 'Hai nửa ngôi sao chồng khít.' }, { id: 'off', label: 'Đường lệch khỏi tâm', px: 24, py: 0, angleDeg: 90, isSymmetryAxis: false, lineTag: 'd₃', explanation: 'Đường không đi qua tâm không phải trục đối xứng.' }],
+    allTrueAxes: [0, 30, 60, 90, 120, 150].map((angleDeg) => ({ px: 0, py: 0, angleDeg, label: 'd' })), predictQuestion: 'Ngôi sao sáu cánh có bao nhiêu trục đối xứng?', observeQuestion: 'Thử các đường đi qua tâm.', overallConclusion: 'Ngôi sao sáu cánh có sáu trục đối xứng.',
+    renderShape: () => <g fill="#BFDBFE" stroke="#1D4ED8" strokeWidth="3" strokeLinejoin="round"><polygon points="0,-130 112,65 -112,65" /><polygon points="0,130 112,-65 -112,-65" /></g>,
+  },
   // =========================================================================
   // NHÓM 1: KHÁM PHÁ HÌNH CÓ TRỤC ĐỐI XỨNG
   // =========================================================================

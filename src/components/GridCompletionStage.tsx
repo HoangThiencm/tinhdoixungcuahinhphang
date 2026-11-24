@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import type { GridCompletionActivity } from '../types/symmetry';
 
 interface GridCompletionStageProps {
@@ -7,6 +7,7 @@ interface GridCompletionStageProps {
   revealAngle: number;
   showCounterpart: boolean;
   showVertexGuides: boolean;
+  onRevealAngleChange: (angle: number) => void;
 }
 
 export const GridCompletionStage: React.FC<GridCompletionStageProps> = ({
@@ -14,7 +15,22 @@ export const GridCompletionStage: React.FC<GridCompletionStageProps> = ({
   revealAngle,
   showCounterpart,
   showVertexGuides,
+  onRevealAngleChange,
 }) => {
+  const dragStart = useRef<{ x: number; angle: number } | null>(null);
+  const handlePointerDown = (event: React.PointerEvent<SVGSVGElement>) => {
+    event.currentTarget.setPointerCapture(event.pointerId);
+    dragStart.current = { x: event.clientX, angle: revealAngle };
+  };
+  const handlePointerMove = (event: React.PointerEvent<SVGSVGElement>) => {
+    if (!dragStart.current) return;
+    const width = Math.max(event.currentTarget.getBoundingClientRect().width, 1);
+    onRevealAngleChange(Math.max(0, Math.min(180, dragStart.current.angle + (event.clientX - dragStart.current.x) / width * 180)));
+  };
+  const handlePointerEnd = (event: React.PointerEvent<SVGSVGElement>) => {
+    if (event.currentTarget.hasPointerCapture(event.pointerId)) event.currentTarget.releasePointerCapture(event.pointerId);
+    dragStart.current = null;
+  };
   const { gridCols, gridRows, cellSize, givenPolygon } = activity;
   const halfW = (gridCols / 2) * cellSize;
   const halfH = (gridRows / 2) * cellSize;
@@ -64,6 +80,11 @@ export const GridCompletionStage: React.FC<GridCompletionStageProps> = ({
         className="w-full h-auto max-h-[430px] select-none rounded-xl bg-white border border-slate-200"
         role="img"
         aria-label={`Vẽ thêm hình có tâm đối xứng trên lưới: ${activity.title}`}
+        style={{ touchAction: 'none', cursor: dragStart.current ? 'grabbing' : 'grab' }}
+        onPointerDown={handlePointerDown}
+        onPointerMove={handlePointerMove}
+        onPointerUp={handlePointerEnd}
+        onPointerCancel={handlePointerEnd}
       >
         {/* Crisp textbook graph paper background */}
         <rect
