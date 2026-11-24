@@ -25,7 +25,7 @@ export const AxisStage: React.FC<AxisStageProps> = ({
   customDiameterAngle,
 }) => {
   const uid = useId().replace(/:/g, '');
-  const dragStart = useRef<{ x: number; y: number; progress: number } | null>(null);
+  const dragStart = useRef<{ x: number; progress: number } | null>(null);
   const activePx = customDiameterAngle !== null ? 0 : selectedLine.px;
   const activePy = customDiameterAngle !== null ? 0 : selectedLine.py;
   const activeAngle = customDiameterAngle !== null ? customDiameterAngle : selectedLine.angleDeg;
@@ -38,26 +38,19 @@ export const AxisStage: React.FC<AxisStageProps> = ({
   const cosVal = Math.abs(rawCos) < 0.002 ? (rawCos >= 0 ? 0.002 : -0.002) : rawCos;
   const foldLift = Math.sin(foldAngleRad); // peaks at 1 when halfway (90°)
   const isFoldComplete = progress >= 0.99;
-  const isTrueAxis = customDiameterAngle !== null || selectedLine.isSymmetryAxis;
-  const showDiscoveredAxis = axisDiscovered || (isFoldComplete && isTrueAxis);
+  const showDiscoveredAxis = axisDiscovered || (isFoldComplete && selectedLine.isSymmetryAxis);
 
   const handlePointerDown = (event: React.PointerEvent<SVGSVGElement>) => {
     event.currentTarget.setPointerCapture(event.pointerId);
-    dragStart.current = { x: event.clientX, y: event.clientY, progress };
+    dragStart.current = { x: event.clientX, progress };
   };
 
   const handlePointerMove = (event: React.PointerEvent<SVGSVGElement>) => {
     if (!dragStart.current) return;
-    const rect = event.currentTarget.getBoundingClientRect();
-    const scale = Math.max(Math.min(rect.width, rect.height) * 0.55, 1);
-    const foldRad = (activeAngle * Math.PI) / 180;
-    // Moving half is y_local >= 0. This is the screen direction it travels while folding.
-    const ux = Math.sin(foldRad);
-    const uy = -Math.cos(foldRad);
-    const projection = (event.clientX - dragStart.current.x) * ux + (event.clientY - dragStart.current.y) * uy;
-    const next = Math.max(0, Math.min(1, dragStart.current.progress + projection / scale));
+    const width = Math.max(event.currentTarget.getBoundingClientRect().width, 1);
+    const next = Math.max(0, Math.min(1, dragStart.current.progress + (dragStart.current.x - event.clientX) / (width * 0.55)));
     onProgressChange(next);
-    if (next >= 0.99 && isTrueAxis) onAxisDiscovered();
+    if (next >= 0.99 && selectedLine.isSymmetryAxis) onAxisDiscovered();
   };
 
   const handlePointerEnd = (event: React.PointerEvent<SVGSVGElement>) => {
@@ -122,7 +115,7 @@ export const AxisStage: React.FC<AxisStageProps> = ({
         className="w-full h-auto max-h-[430px] select-none rounded-xl bg-white border border-slate-200"
         role="img"
         aria-label={`Mô phỏng gấp hình: ${activity.title}`}
-        style={{ touchAction: 'none', cursor: dragStart.current ? 'grabbing' : 'grab' }}
+        style={{ touchAction: 'none', cursor: 'ew-resize' }}
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerEnd}
@@ -259,18 +252,17 @@ export const AxisStage: React.FC<AxisStageProps> = ({
             );
           })}
 
-        {/* The tested crease stays visible, but only true axes receive the blue axis treatment. */}
-        {(progress > 0.02 || showDiscoveredAxis) && (
+        {/* Active Fold Line (always stays fixed!) */}
+        {showDiscoveredAxis && (
           <g>
             <line
               x1={lx1}
               y1={ly1}
               x2={lx2}
               y2={ly2}
-              stroke={isTrueAxis && showDiscoveredAxis ? '#0284C7' : '#F97316'}
-              strokeWidth={isTrueAxis && showDiscoveredAxis ? '2.8' : '2'}
+              stroke="#0284C7"
+              strokeWidth="2.8"
               strokeDasharray="9 5"
-              opacity={isTrueAxis && showDiscoveredAxis ? 1 : 0.75}
             />
             {/* Small fold indicator arrow near the line when flat */}
             {progress < 0.05 && (
@@ -290,7 +282,7 @@ export const AxisStage: React.FC<AxisStageProps> = ({
               y={Math.max(-155, Math.min(162, labelY))}
               fontSize="16"
               fontWeight="700"
-              fill={isTrueAxis && showDiscoveredAxis ? '#0369A1' : '#C2410C'}
+              fill="#0369A1"
               fontStyle="italic"
             >
               {activeTag}
@@ -316,7 +308,7 @@ export const AxisStage: React.FC<AxisStageProps> = ({
           )}
           {isFoldComplete && (
             <span className="inline-flex items-center gap-1.5 font-medium text-slate-800">
-              <span>{isTrueAxis ? 'Trục đối xứng d' : 'Không chồng khít – Không phải trục đối xứng'}</span>
+              <span>{selectedLine.isSymmetryAxis ? 'Nếp gấp này chính là TRỤC ĐỐI XỨNG của hình!' : 'Hai nửa chưa chồng khít: đây không phải trục đối xứng.'}</span>
             </span>
           )}
         </div>

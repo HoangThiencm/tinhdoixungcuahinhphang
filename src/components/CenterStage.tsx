@@ -24,29 +24,16 @@ export const CenterStage: React.FC<CenterStageProps> = ({
   const ox = selectedPoint.x;
   const oy = selectedPoint.y;
   const isAt180 = angle >= 179.5;
-  const dragStart = useRef<{ x: number; y: number; angle: number; pointerAngle: number } | null>(null);
-
-  const pointerAngleAtCenter = (event: React.PointerEvent<SVGSVGElement>) => {
-    const rect = event.currentTarget.getBoundingClientRect();
-    const sx = (event.clientX - rect.left) / rect.width * 440 - 220;
-    const sy = (event.clientY - rect.top) / rect.height * 350 - 175;
-    return { x: sx, y: sy, angle: Math.atan2(sy - oy, sx - ox) };
-  };
+  const dragStart = useRef<{ x: number; angle: number } | null>(null);
 
   const handlePointerDown = (event: React.PointerEvent<SVGSVGElement>) => {
     event.currentTarget.setPointerCapture(event.pointerId);
-    const point = pointerAngleAtCenter(event);
-    dragStart.current = { x: event.clientX, y: event.clientY, angle, pointerAngle: point.angle };
+    dragStart.current = { x: event.clientX, angle };
   };
   const handlePointerMove = (event: React.PointerEvent<SVGSVGElement>) => {
     if (!dragStart.current) return;
-    const point = pointerAngleAtCenter(event);
-    const distance = Math.hypot(point.x - ox, point.y - oy);
     const width = Math.max(event.currentTarget.getBoundingClientRect().width, 1);
-    const delta = distance > 18
-      ? (point.angle - dragStart.current.pointerAngle) * 180 / Math.PI
-      : (event.clientX - dragStart.current.x) / width * 180;
-    const next = Math.max(0, Math.min(180, dragStart.current.angle + delta));
+    const next = Math.max(0, Math.min(180, dragStart.current.angle + (event.clientX - dragStart.current.x) / width * 180));
     onAngleChange(next);
     if (next >= 179.5 && selectedPoint.isSymmetryCenter) onCenterDiscovered();
   };
@@ -167,7 +154,7 @@ export const CenterStage: React.FC<CenterStageProps> = ({
         className="w-full h-auto max-h-[430px] select-none rounded-xl bg-white border border-slate-200"
         role="img"
         aria-label={`Mô phỏng quay 180 độ quanh tâm: ${activity.title}`}
-        style={{ touchAction: 'none', cursor: dragStart.current ? 'grabbing' : 'grab' }}
+        style={{ touchAction: 'none', cursor: 'ew-resize' }}
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerEnd}
@@ -219,7 +206,7 @@ export const CenterStage: React.FC<CenterStageProps> = ({
         {renderMarkerATrail()}
 
         {/* Live angle sweep arc around O */}
-        {renderAngleArc()}
+        {showReference && renderAngleArc()}
 
         {/* Điểm O chỉ xuất hiện sau khi hình đã quay trọn nửa vòng. */}
         {centerDiscovered && (
@@ -255,7 +242,7 @@ export const CenterStage: React.FC<CenterStageProps> = ({
           )}
           {isAt180 && (
             <span className="font-medium text-slate-800">
-              {selectedPoint.isSymmetryCenter ? 'Tâm đối xứng O' : 'Không chồng khít – Không có tâm đối xứng'}
+              {selectedPoint.isSymmetryCenter ? 'Điểm cố định O chính là TÂM ĐỐI XỨNG của hình!' : 'Hình chưa chồng khít: không có tâm đối xứng tại điểm này.'}
             </span>
           )}
         </div>

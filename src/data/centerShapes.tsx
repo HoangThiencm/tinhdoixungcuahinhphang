@@ -32,48 +32,6 @@ export const CENTER_GROUPS: ActivityGroup[] = [
     title: 'Nhóm 5: Gấp và cắt giấy',
     subtitle: 'Hình 5.9 & Bài tập 5.8, 5.10 (Trang 106–107)',
   },
-  /*
-  {
-    id: 'center-equilateral-triangle',
-    tab: 'center', groupId: 'center-g3', mode: 'center-rotate',
-    title: 'Chú ý – Tam giác đều', shortTitle: 'Tam giác đều',
-    sourceRef: 'Bài 22 – Chú ý, trang 106', hasSymmetry: false,
-    candidatePoints: [{ id: 'O', label: 'Tâm O', x: 0, y: 0, isSymmetryCenter: false, pointTag: 'O', explanation: 'Quay nửa vòng làm các đỉnh lệch vị trí.' }],
-    predictQuestion: 'Tam giác đều có tâm đối xứng không?', observeQuestion: 'Kéo để quay nửa vòng.', overallConclusion: 'Tam giác đều không có tâm đối xứng.',
-    renderShape: () => <polygon points="0,-124 108,72 -108,72" fill="#FDE68A" stroke="#B45309" strokeWidth="3" />,
-    renderOutline: () => <polygon points="0,-124 108,72 -108,72" {...OUTLINE_PROPS} />,
-  },
-  {
-    id: 'center-six-star',
-    tab: 'center', groupId: 'center-g3', mode: 'center-rotate',
-    title: 'Thử thách nhỏ – Ngôi sao sáu cánh', shortTitle: 'Ngôi sao sáu cánh',
-    sourceRef: 'Bài 22 – Thử thách nhỏ, trang 106', hasSymmetry: true,
-    candidatePoints: [{ id: 'O', label: 'Tâm O', x: 0, y: 0, isSymmetryCenter: true, pointTag: 'O', explanation: 'Quay 180° thì các cánh sao chồng khít.' }],
-    predictQuestion: 'Ngôi sao sáu cánh có tâm đối xứng không?', observeQuestion: 'Kéo để quay nửa vòng.', overallConclusion: 'Ngôi sao sáu cánh có tâm đối xứng O.',
-    renderShape: () => <g fill="#C4B5FD" stroke="#6D28D9" strokeWidth="3"><polygon points="0,-130 112,65 -112,65" /><polygon points="0,130 112,-65 -112,-65" /></g>,
-    renderOutline: () => <g {...OUTLINE_PROPS}><polygon points="0,-130 112,65 -112,65" /><polygon points="0,130 112,-65 -112,-65" /></g>,
-  },
-  {
-    id: 'center-asean',
-    tab: 'center', groupId: 'center-g3', mode: 'center-rotate',
-    title: 'Thử thách nhỏ – Biểu tượng ASEAN', shortTitle: 'Biểu tượng ASEAN',
-    sourceRef: 'Bài 22 – Thử thách nhỏ, trang 106', hasSymmetry: false,
-    candidatePoints: [{ id: 'O', label: 'Tâm vòng tròn', x: 0, y: 0, isSymmetryCenter: false, pointTag: 'O', explanation: 'Bó lúa và màu sắc trên-dưới không chồng khít khi quay.' }],
-    predictQuestion: 'Biểu tượng ASEAN có tâm đối xứng không?', observeQuestion: 'Kéo để quay nửa vòng.', overallConclusion: 'Biểu tượng ASEAN không có tâm đối xứng.',
-    renderShape: () => <g><circle r="112" fill="#2563EB" stroke="#1E3A8A" strokeWidth="4" /><circle r="82" fill="#DC2626" /><g stroke="#FACC15" strokeWidth="7" strokeLinecap="round"><path d="M -40,48 Q -48,0 -26,-48" /><path d="M -20,52 Q -24,0 -13,-52" /><path d="M 0,54 Q 0,0 0,-54" /><path d="M 20,52 Q 24,0 13,-52" /><path d="M 40,48 Q 48,0 26,-48" /></g></g>,
-    renderOutline: () => <circle r="112" {...OUTLINE_PROPS} />,
-  },
-  {
-    id: 'center-snowflake',
-    tab: 'center', groupId: 'center-g3', mode: 'center-rotate',
-    title: 'Thử thách nhỏ – Bông tuyết sáu nhánh', shortTitle: 'Bông tuyết',
-    sourceRef: 'Bài 22 – Thử thách nhỏ, trang 106', hasSymmetry: true,
-    candidatePoints: [{ id: 'O', label: 'Tâm O', x: 0, y: 0, isSymmetryCenter: true, pointTag: 'O', explanation: 'Các nhánh đối diện chồng khít sau khi quay 180°.' }],
-    predictQuestion: 'Bông tuyết có tâm đối xứng không?', observeQuestion: 'Kéo để quay nửa vòng.', overallConclusion: 'Bông tuyết có tâm đối xứng O.',
-    renderShape: () => <g stroke="#0EA5E9" strokeWidth="6" strokeLinecap="round"><g><line x1="-122" y1="0" x2="122" y2="0" /><line x1="66" y1="0" x2="38" y2="-24" /><line x1="-66" y1="0" x2="-38" y2="24" /></g><g transform="rotate(60)"><line x1="-122" y1="0" x2="122" y2="0" /><line x1="66" y1="0" x2="38" y2="-24" /><line x1="-66" y1="0" x2="-38" y2="24" /></g><g transform="rotate(120)"><line x1="-122" y1="0" x2="122" y2="0" /><line x1="66" y1="0" x2="38" y2="-24" /><line x1="-66" y1="0" x2="-38" y2="24" /></g></g>,
-    renderOutline: () => <g stroke="#2563EB" strokeWidth="2.6" strokeDasharray="7 5"><line x1="-122" y1="0" x2="122" y2="0" /><line x1="-122" y1="0" x2="122" y2="0" transform="rotate(60)" /><line x1="-122" y1="0" x2="122" y2="0" transform="rotate(120)" /></g>,
-  },
-  */
 ];
 
 // Helper: regular polygon points string
@@ -177,26 +135,6 @@ const ROUNDABOUT_ARROW_PATH =
   'M 12,-70 A 70,70 0 0,1 66,-24 L 78,-30 L 64,2 L 38,-14 L 50,-20 A 52,52 0 0,0 10,-52 Z';
 
 export const CENTER_ACTIVITIES: SymmetryActivity[] = [
-  {
-    id: 'center-equilateral-triangle', tab: 'center', groupId: 'center-g3', mode: 'center-rotate', title: 'Chú ý – Tam giác đều', shortTitle: 'Tam giác đều', sourceRef: 'Bài 22 – Chú ý, trang 106', hasSymmetry: false,
-    candidatePoints: [{ id: 'O', label: 'Tâm O', x: 0, y: 0, isSymmetryCenter: false, pointTag: 'O', explanation: 'Quay nửa vòng làm các đỉnh lệch vị trí.' }], predictQuestion: 'Tam giác đều có tâm đối xứng không?', observeQuestion: 'Kéo để quay nửa vòng.', overallConclusion: 'Tam giác đều không có tâm đối xứng.',
-    renderShape: () => <polygon points="0,-124 108,72 -108,72" fill="#FDE68A" stroke="#B45309" strokeWidth="3" />, renderOutline: () => <polygon points="0,-124 108,72 -108,72" {...OUTLINE_PROPS} />,
-  },
-  {
-    id: 'center-six-star', tab: 'center', groupId: 'center-g3', mode: 'center-rotate', title: 'Thử thách nhỏ – Ngôi sao sáu cánh', shortTitle: 'Ngôi sao sáu cánh', sourceRef: 'Bài 22 – Thử thách nhỏ, trang 106', hasSymmetry: true,
-    candidatePoints: [{ id: 'O', label: 'Tâm O', x: 0, y: 0, isSymmetryCenter: true, pointTag: 'O', explanation: 'Quay 180° thì các cánh sao chồng khít.' }], predictQuestion: 'Ngôi sao sáu cánh có tâm đối xứng không?', observeQuestion: 'Kéo để quay nửa vòng.', overallConclusion: 'Ngôi sao sáu cánh có tâm đối xứng O.',
-    renderShape: () => <g fill="#C4B5FD" stroke="#6D28D9" strokeWidth="3"><polygon points="0,-130 112,65 -112,65" /><polygon points="0,130 112,-65 -112,-65" /></g>, renderOutline: () => <g {...OUTLINE_PROPS}><polygon points="0,-130 112,65 -112,65" /><polygon points="0,130 112,-65 -112,-65" /></g>,
-  },
-  {
-    id: 'center-asean', tab: 'center', groupId: 'center-g3', mode: 'center-rotate', title: 'Thử thách nhỏ – Biểu tượng ASEAN', shortTitle: 'Biểu tượng ASEAN', sourceRef: 'Bài 22 – Thử thách nhỏ, trang 106', hasSymmetry: false,
-    candidatePoints: [{ id: 'O', label: 'Tâm vòng tròn', x: 0, y: 0, isSymmetryCenter: false, pointTag: 'O', explanation: 'Bó lúa không chồng khít khi quay.' }], predictQuestion: 'Biểu tượng ASEAN có tâm đối xứng không?', observeQuestion: 'Kéo để quay nửa vòng.', overallConclusion: 'Biểu tượng ASEAN không có tâm đối xứng.',
-    renderShape: () => <g><circle r="112" fill="#2563EB" stroke="#1E3A8A" strokeWidth="4" /><circle r="82" fill="#DC2626" /><g stroke="#FACC15" strokeWidth="7"><path d="M -40,48 Q -48,0 -26,-48" /><path d="M 0,54 Q 0,0 0,-54" /><path d="M 40,48 Q 48,0 26,-48" /></g></g>, renderOutline: () => <circle r="112" {...OUTLINE_PROPS} />,
-  },
-  {
-    id: 'center-snowflake', tab: 'center', groupId: 'center-g3', mode: 'center-rotate', title: 'Thử thách nhỏ – Bông tuyết sáu nhánh', shortTitle: 'Bông tuyết', sourceRef: 'Bài 22 – Thử thách nhỏ, trang 106', hasSymmetry: true,
-    candidatePoints: [{ id: 'O', label: 'Tâm O', x: 0, y: 0, isSymmetryCenter: true, pointTag: 'O', explanation: 'Các nhánh đối diện chồng khít sau khi quay 180°.' }], predictQuestion: 'Bông tuyết có tâm đối xứng không?', observeQuestion: 'Kéo để quay nửa vòng.', overallConclusion: 'Bông tuyết có tâm đối xứng O.',
-    renderShape: () => <g stroke="#0EA5E9" strokeWidth="6"><line x1="-122" y1="0" x2="122" y2="0" /><line x1="-122" y1="0" x2="122" y2="0" transform="rotate(60)" /><line x1="-122" y1="0" x2="122" y2="0" transform="rotate(120)" /></g>, renderOutline: () => <g stroke="#2563EB" strokeWidth="2.6" strokeDasharray="7 5"><line x1="-122" y1="0" x2="122" y2="0" /><line x1="-122" y1="0" x2="122" y2="0" transform="rotate(60)" /><line x1="-122" y1="0" x2="122" y2="0" transform="rotate(120)" /></g>,
-  },
   // =========================================================================
   // NHÓM 1: KHÁM PHÁ HÌNH CÓ TÂM ĐỐI XỨNG
   // =========================================================================
