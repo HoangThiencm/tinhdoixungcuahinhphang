@@ -5,32 +5,26 @@ export const AXIS_GROUPS: ActivityGroup[] = [
   {
     id: 'axis-g1',
     tab: 'axis',
-    title: 'Nhóm 1: Khám phá hình có trục đối xứng',
+    title: 'Khám phá trong tự nhiên & đời sống',
     subtitle: 'HĐ1, HĐ2, HĐ3, HĐ4 & Hình 5.3 (Trang 99–100)',
   },
   {
     id: 'axis-g2',
     tab: 'axis',
-    title: 'Nhóm 2: Trục đối xứng của một số hình phẳng',
+    title: 'Các hình phẳng hình học',
     subtitle: 'HĐ5, HĐ6, Thực hành 1 & Tranh luận 1 (Trang 100)',
   },
   {
     id: 'axis-g3',
     tab: 'axis',
-    title: 'Nhóm 3: Luyện tập nhận biết',
+    title: 'Chữ cái, Biển báo & Lưới ô vuông',
     subtitle: 'Luyện tập 1, 2 & Bài tập 5.1 – 5.4 (Trang 99, 102)',
   },
   {
     id: 'axis-g4',
     tab: 'axis',
-    title: 'Nhóm 4: Gấp và cắt giấy',
+    title: 'Gấp và cắt giấy',
     subtitle: 'Hình 5.4, Thực hành 2 & Hình 5.5 (Trang 101)',
-  },
-  {
-    id: 'axis-g5',
-    tab: 'axis',
-    title: 'Nhóm 5: Mở rộng',
-    subtitle: 'Chiếc lá đối xứng trong học tập',
   },
   /*
   {
@@ -292,7 +286,7 @@ function renderClover53c() {
 
 const AXIS_ACTIVITIES_RAW: SymmetryActivity[] = [
   {
-    id: 'axis-cham-tower', tab: 'axis', groupId: 'axis-g5', mode: 'axis-fold',
+    id: 'axis-cham-tower', tab: 'axis', groupId: 'axis-g1', mode: 'axis-fold',
     title: 'Thử thách nhỏ – Tháp Chăm', shortTitle: 'Tháp Chăm', sourceRef: 'Bài 21 – Thử thách nhỏ, trang 101',
     hasSymmetry: true, axisCountLabel: '1 trục đối xứng',
     candidateLines: [
@@ -303,7 +297,7 @@ const AXIS_ACTIVITIES_RAW: SymmetryActivity[] = [
     renderShape: () => <g fill="#FDE68A" stroke="#92400E" strokeWidth="3" strokeLinejoin="round"><path d="M -82,125 L -72,-24 L 0,-142 L 72,-24 L 82,125 Z" /><path d="M -48,-24 L 0,-88 L 48,-24 Z" fill="#F59E0B" /><rect x="-23" y="48" width="46" height="77" fill="#78350F" /></g>,
   },
   {
-    id: 'axis-six-star', tab: 'axis', groupId: 'axis-g5', mode: 'axis-fold',
+    id: 'axis-six-star', tab: 'axis', groupId: 'axis-g2', mode: 'axis-fold',
     title: 'Thử thách nhỏ – Ngôi sao sáu cánh', shortTitle: 'Ngôi sao sáu cánh', sourceRef: 'Bài 21 – Thử thách nhỏ, trang 101',
     hasSymmetry: true, axisCountLabel: '6 trục đối xứng',
     candidateLines: [0, 30, 60, 90, 120, 150].map((angleDeg, index) => ({ id: `axis-${angleDeg}`, label: `Trục d${index + 1} qua tâm`, px: 0, py: 0, angleDeg, isSymmetryAxis: true, lineTag: `d${index + 1}`, explanation: 'Hai nửa ngôi sao chồng khít.' })),
@@ -2664,7 +2658,7 @@ const AXIS_ACTIVITIES_RAW: SymmetryActivity[] = [
   {
     id: 'axis-g5-leaf',
     tab: 'axis',
-    groupId: 'axis-g5',
+    groupId: 'axis-g1',
     mode: 'axis-fold',
     title: 'Mở rộng – Chiếc lá đối xứng',
     shortTitle: 'Chiếc lá đối xứng',
@@ -2728,9 +2722,10 @@ const AXIS_ACTIVITIES_RAW: SymmetryActivity[] = [
 // Hình có trục đối xứng chỉ cho phép chọn các trục đúng; hình không đối xứng
 // vẫn giữ các nếp gấp thử để quan sát hai nửa lệch nhau.
 export const AXIS_ACTIVITIES: SymmetryActivity[] = AXIS_ACTIVITIES_RAW
-  .map((activity) => activity.mode === 'axis-fold' && activity.hasSymmetry
+  .map((activity) => activity.mode === 'axis-fold' && ['axis-hd1-butterfly', 'axis-g5-leaf', 'axis-cham-tower', 'axis-bt53a-flag', 'axis-bt53c-clover', 'axis-h53c-emblem', 'axis-hd2-circle'].includes(activity.id)
     ? { ...activity, candidateLines: activity.candidateLines.filter((line) => line.isSymmetryAxis) }
     : activity)
+  .filter((activity) => !['axis-h53a-butterfly', 'axis-h53b-circle', 'axis-bt52-hexagon', 'axis-bt51-trapezoid'].includes(activity.id))
   .sort((a, b) => {
     if (a.id === 'axis-hd1-butterfly') return -1;
     if (b.id === 'axis-hd1-butterfly') return 1;

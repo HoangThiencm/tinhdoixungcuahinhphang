@@ -25,7 +25,7 @@ export default function App() {
   const [progress, setProgress] = useState(0); // normalized 0..1 (axis-fold), 0..180 (center-rotate & grid-complete), 0..maxStep (paper-cut)
   const [isPlaying, setIsPlaying] = useState(false);
   const [hasStarted, setHasStarted] = useState(false);
-  const [axisDiscovered, setAxisDiscovered] = useState(false);
+  const [discoveredLineIds, setDiscoveredLineIds] = useState<string[]>([]);
   const [centerDiscovered, setCenterDiscovered] = useState(false);
 
   // Reference & display toggles
@@ -63,7 +63,7 @@ export default function App() {
     setProgress(0);
     setShowAllAxes(false);
     setShowCounterpart(false);
-    setAxisDiscovered(false);
+    setDiscoveredLineIds([]);
     setCenterDiscovered(false);
     setCustomDiameterAngle(null);
 
@@ -170,7 +170,7 @@ export default function App() {
     setProgress(0);
     setShowAllAxes(false);
     setShowCounterpart(false);
-    setAxisDiscovered(false);
+    setDiscoveredLineIds([]);
     setCenterDiscovered(false);
   };
 
@@ -188,7 +188,8 @@ export default function App() {
     }
     setProgress(val);
     if (activity.mode === 'axis-fold' && val >= 0.99 && (customDiameterAngle !== null || activeLine?.isSymmetryAxis)) {
-      setAxisDiscovered(true);
+      const id = customDiameterAngle !== null ? `diameter-${customDiameterAngle}` : activeLine?.id;
+      if (id) setDiscoveredLineIds((current) => current.includes(id) ? current : [...current, id]);
     }
     if (activity.mode === 'center-rotate' && val >= 179.5 && activePoint?.isSymmetryCenter) {
       setCenterDiscovered(true);
@@ -210,7 +211,6 @@ export default function App() {
     setIsPlaying(false);
     setHasStarted(false);
     setProgress(0);
-    setAxisDiscovered(false);
   };
 
   const handleCustomDiameterChange = (deg: number) => {
@@ -218,7 +218,6 @@ export default function App() {
     setIsPlaying(false);
     setHasStarted(false);
     setProgress(0);
-    setAxisDiscovered(false);
   };
 
   // Candidate point selection (Tab 2)
@@ -240,7 +239,8 @@ export default function App() {
 
   useEffect(() => {
     if (activity.mode === 'axis-fold' && progress >= 0.99 && (customDiameterAngle !== null || activeLine?.isSymmetryAxis)) {
-      setAxisDiscovered(true);
+      const id = customDiameterAngle !== null ? `diameter-${customDiameterAngle}` : activeLine?.id;
+      if (id) setDiscoveredLineIds((current) => current.includes(id) ? current : [...current, id]);
     }
     if (activity.mode === 'center-rotate' && progress >= 179.5 && activePoint?.isSymmetryCenter) {
       setCenterDiscovered(true);
@@ -376,7 +376,7 @@ export default function App() {
               </div>
 
               <div className="flex flex-wrap items-center gap-2">
-                {activity.mode === 'axis-fold' && axisDiscovered && activity.allTrueAxes.length > 1 && (
+                {activity.mode === 'axis-fold' && discoveredLineIds.length > 0 && activity.allTrueAxes.length > 1 && (
                   <button
                     type="button"
                     onClick={() => setShowAllAxes((value) => !value)}
@@ -395,9 +395,9 @@ export default function App() {
                 selectedLine={activeLine}
                 progress={progress}
                 showAllAxes={showAllAxes}
-                axisDiscovered={axisDiscovered}
+                discoveredLineIds={discoveredLineIds}
                 onProgressChange={handleSliderChange}
-                onAxisDiscovered={() => setAxisDiscovered(true)}
+                onAxisDiscovered={(lineId) => setDiscoveredLineIds((current) => current.includes(lineId) ? current : [...current, lineId])}
                 onSelectLine={handleSelectCandidateLine}
                 customDiameterAngle={customDiameterAngle}
               />
@@ -452,7 +452,7 @@ export default function App() {
           ================================================================= */}
           <div className="bg-white border border-slate-200 rounded-xl p-4 sm:p-5 flex flex-col gap-4">
             {/* Candidate Fold Line Picker (Tab 1) */}
-            {activity.mode === 'axis-fold' && activeLine && (activity.candidateLines.length > 1 || activity.allowFreeDiameter) && (
+            {activity.mode === 'axis-fold' && activeLine && activity.allowFreeDiameter && (
               <div>
                 <div className="text-xs font-semibold text-slate-600 mb-2">
                   Chọn trục gấp:
@@ -478,8 +478,7 @@ export default function App() {
                 </div>
 
                 {/* Extra free diameter angle dial for Circle (HĐ2 & HĐ4) */}
-                {activity.allowFreeDiameter && (
-                  <div className="mt-3 pt-3 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center gap-3">
+                <div className="mt-3 pt-3 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center gap-3">
                     <label
                       htmlFor="circle-diameter-angle"
                       className="text-xs font-semibold text-slate-700 whitespace-nowrap"
@@ -500,7 +499,6 @@ export default function App() {
                       {Math.round(customDiameterAngle ?? activeLine.angleDeg)}°
                     </span>
                   </div>
-                )}
               </div>
             )}
 
@@ -644,7 +642,7 @@ export default function App() {
                   <RotateCcw className="w-4 h-4 shrink-0" />
                   <span>Làm lại</span>
                 </button>
-                {activity.mode === 'axis-fold' && axisDiscovered && (
+                {activity.mode === 'axis-fold' && discoveredLineIds.length > 0 && (
                   <button
                     type="button"
                     onClick={handleUnfold}

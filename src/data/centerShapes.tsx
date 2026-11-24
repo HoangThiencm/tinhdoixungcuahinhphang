@@ -5,32 +5,26 @@ export const CENTER_GROUPS: ActivityGroup[] = [
   {
     id: 'center-g1',
     tab: 'center',
-    title: 'Nhóm 1: Khám phá hình có tâm đối xứng',
+    title: 'Khám phá trong tự nhiên & đời sống',
     subtitle: 'HĐ1 (H.5.6), HĐ2 (H.5.7) & Thực hành 1 (H.5.8) (Trang 103–105)',
   },
   {
     id: 'center-g2',
     tab: 'center',
-    title: 'Nhóm 2: Tâm đối xứng của một số hình phẳng',
+    title: 'Các hình phẳng hình học',
     subtitle: 'HĐ3, HĐ4 & Luyện tập 1 (Trang 104–105)',
   },
   {
     id: 'center-g3',
     tab: 'center',
-    title: 'Nhóm 3: Luyện tập nhận biết',
+    title: 'Chữ cái, Biển báo & Lưới ô vuông',
     subtitle: 'Luyện tập 1 & Bài tập 5.5, 5.6, 5.7 (Trang 104, 107)',
   },
   {
     id: 'center-g4',
     tab: 'center',
-    title: 'Nhóm 4: Vẽ thêm để tạo hình có tâm đối xứng',
-    subtitle: 'Luyện tập 2 & Bài tập 5.9 trên lưới ô vuông (Trang 106–107)',
-  },
-  {
-    id: 'center-g5',
-    tab: 'center',
-    title: 'Nhóm 5: Gấp và cắt giấy',
-    subtitle: 'Hình 5.9 & Bài tập 5.8, 5.10 (Trang 106–107)',
+    title: 'Gấp và cắt giấy',
+    subtitle: 'Lưới ô vuông, Hình 5.9 & Bài tập 5.8, 5.10 (Trang 106–107)',
   },
   /*
   {
@@ -1920,7 +1914,7 @@ const CENTER_ACTIVITIES_RAW: SymmetryActivity[] = [
   {
     id: 'center-h59-clover4',
     tab: 'center',
-    groupId: 'center-g5',
+    groupId: 'center-g4',
     mode: 'paper-cut',
     variant: 'h59-clover4',
     title: 'Thực hành 2 – Gấp và cắt hình cỏ bốn lá (Hình 5.9)',
@@ -1966,7 +1960,7 @@ const CENTER_ACTIVITIES_RAW: SymmetryActivity[] = [
   {
     id: 'center-bt58-hexagons',
     tab: 'center',
-    groupId: 'center-g5',
+    groupId: 'center-g4',
     mode: 'paper-cut',
     variant: 'b58-hexagons',
     title: 'Bài 5.8 – Gấp và cắt hình 4 lục giác nối nhau',
@@ -2013,7 +2007,7 @@ const CENTER_ACTIVITIES_RAW: SymmetryActivity[] = [
   {
     id: 'center-bt510a',
     tab: 'center',
-    groupId: 'center-g5',
+    groupId: 'center-g4',
     mode: 'paper-cut',
     variant: 'b510-a',
     title: 'Bài 5.10a – Dự đoán chữ cái khi mở giấy gấp tư',
@@ -2048,7 +2042,7 @@ const CENTER_ACTIVITIES_RAW: SymmetryActivity[] = [
   {
     id: 'center-bt510b',
     tab: 'center',
-    groupId: 'center-g5',
+    groupId: 'center-g4',
     mode: 'paper-cut',
     variant: 'b510-b',
     title: 'Bài 5.10b – Dự đoán chữ cái khi mở giấy gấp tư',
@@ -2088,6 +2082,7 @@ export const CENTER_ACTIVITIES: SymmetryActivity[] = CENTER_ACTIVITIES_RAW
   .map((activity) => activity.mode === 'center-rotate' && activity.hasSymmetry
     ? { ...activity, candidatePoints: activity.candidatePoints.filter((point) => point.isSymmetryCenter) }
     : activity)
+  .filter((activity) => activity.id !== 'center-bt55d')
   .sort((a, b) => {
     if (a.id === 'center-hd1-pinwheel2') return -1;
     if (b.id === 'center-hd1-pinwheel2') return 1;

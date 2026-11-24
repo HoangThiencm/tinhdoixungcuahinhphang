@@ -25,6 +25,8 @@ export const CenterStage: React.FC<CenterStageProps> = ({
   const oy = selectedPoint.y;
   const isAt180 = angle >= 179.5;
   const dragStart = useRef<{ x: number; y: number; angle: number; pointerAngle: number } | null>(null);
+  const latestAngle = useRef(angle);
+  latestAngle.current = angle;
   const shouldShowCenterNow = selectedPoint.isSymmetryCenter && (isAt180 || (centerDiscovered && angle <= 1));
 
   const pointerAtCenter = (event: React.PointerEvent<SVGSVGElement>) => {
@@ -44,15 +46,25 @@ export const CenterStage: React.FC<CenterStageProps> = ({
     const point = pointerAtCenter(event);
     const width = Math.max(event.currentTarget.getBoundingClientRect().width, 1);
     const distance = Math.hypot(point.x - ox, point.y - oy);
+    let angularDelta = point.angle - dragStart.current.pointerAngle;
+    // atan2 jumps from π to -π at its branch cut; keep this a continuous gesture.
+    if (angularDelta > Math.PI) angularDelta -= Math.PI * 2;
+    if (angularDelta < -Math.PI) angularDelta += Math.PI * 2;
     const delta = distance > 18
-      ? (point.angle - dragStart.current.pointerAngle) * 180 / Math.PI
+      ? angularDelta * 180 / Math.PI
       : (event.clientX - dragStart.current.x) / width * 180;
     const next = Math.max(0, Math.min(180, dragStart.current.angle + delta));
+    latestAngle.current = next;
     onAngleChange(next);
     if (next >= 179.5 && selectedPoint.isSymmetryCenter) onCenterDiscovered();
   };
   const handlePointerEnd = (event: React.PointerEvent<SVGSVGElement>) => {
     if (event.currentTarget.hasPointerCapture(event.pointerId)) event.currentTarget.releasePointerCapture(event.pointerId);
+    if (latestAngle.current >= 155) {
+      onAngleChange(180);
+      latestAngle.current = 180;
+      if (selectedPoint.isSymmetryCenter) onCenterDiscovered();
+    }
     dragStart.current = null;
   };
 

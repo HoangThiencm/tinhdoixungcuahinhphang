@@ -2,16 +2,13 @@
 
 Trạng thái: HOÀN THÀNH
 
-## Phạm vi triển khai
+## Phạm vi đã triển khai
 
-- Chuẩn hóa kéo gấp theo pháp tuyến cho gấp ngang, dọc, chéo và đường kính tự do.
-- Thêm kéo trực tiếp cho quay, gấp/cắt giấy và lưới ô vuông.
-- Bổ sung Tháp Chăm, ngôi sao sáu cánh, tam giác đều, biểu tượng ASEAN và bông tuyết.
-- Danh sách hình luôn hiện trên màn hình hẹp; rút gọn nhãn và bỏ ghi chú dài.
-- Làm sạch dữ liệu trục/tâm: hình đối xứng chỉ còn các lựa chọn đúng, còn hình không đối xứng vẫn có nếp gấp kiểm chứng.
-- Đưa Con bướm và Chong chóng hai cánh trở lại hoạt động mặc định; chỉnh Biểu tượng ASEAN, sao sáu cánh và bông tuyết đối xứng đúng.
-- Ưu tiên kéo trực tiếp bằng gợi ý trên cả bốn mô phỏng, tự chọn trục gần hướng kéo đầu tiên cho hình nhiều trục và tinh gọn các nút điều khiển thành nút phụ.
-- Sửa toàn bộ lỗi trong `VERIFY.md`: trục/tâm chỉ lộ sau khi thao tác hoàn tất (hoặc khi đã mở phẳng sau khám phá), giấy và lưới nhận Pointer Drag, danh sách hình không bị ẩn trên màn hình hẹp và các viền ASEAN/bông tuyết khớp hình gốc.
+- `AxisStage`: kéo từ hai phía, bắt hướng gấp theo thao tác kéo, tự hít vào 0% hoặc 100%, và lưu các trục đã tìm được.
+- Trục đối xứng ở trạng thái hoàn tất dùng viền trắng, nét đứt đỏ hồng và nhãn tương phản cao; `PaperCutStage` dùng cùng cách hiển thị sau khi mở giấy xong.
+- `CenterStage`: xử lý liên tục qua nhánh `atan2` và tự hít vào 180° khi thả từ 155°; `PaperCutStage` tự hoàn tất gần cuối thao tác mở.
+- `App`: ẩn các nút chọn trục lộ đáp án (giữ thanh đường kính tự do của hình tròn) và lưu trục đã khám phá theo từng đường.
+- Dữ liệu Bài 21/Bài 22 không hiển thị các mục trùng theo kế hoạch và danh sách được gom thành bốn nhóm.
 
 ## Tệp đã thay đổi
 
@@ -19,17 +16,23 @@ Trạng thái: HOÀN THÀNH
 - `src/components/AxisStage.tsx`
 - `src/components/CenterStage.tsx`
 - `src/components/PaperCutStage.tsx`
-- `src/components/GridCompletionStage.tsx`
 - `src/data/axisShapes.tsx`
 - `src/data/centerShapes.tsx`
 - `docs/handoff/IMPLEMENT.md`
 
-## Kiểm tra đã chạy
+## Kiểm tra
 
 - `npm run lint` — PASS
 - `npm run build` — PASS
+- `git diff --check` — PASS
 
-## Ghi chú
+Không commit hoặc push. Build chỉ hiển thị cảnh báo Vite có sẵn về `__dirname`.
 
-- Các kiểm tra tự động đã đạt; build vẫn hiển thị cảnh báo Vite có sẵn về `__dirname`.
-- Không commit hoặc push trong lượt sửa lỗi xác minh này.
+## Sửa lỗi theo VERIFY.md
+
+- Nhóm vật tự nhiên/đời sống chỉ còn trục đối xứng thật; các hình phẳng vẫn giữ đường gấp phản ví dụ. Hoạt động quay có tâm đối xứng chỉ còn điểm tâm đúng.
+- Kéo gấp giữ nguyên nửa đã nắm trong suốt thao tác và hỗ trợ kéo ngược để mở hình. Ba mô phỏng dùng giá trị kéo mới nhất khi quyết định auto-snap.
+- Huy hiệu trục được căn giữa trong khung đủ rộng; thông báo phản ví dụ phân biệt chính xác giữa đường gấp sai và hình không có trục đối xứng; viền cảnh báo đỏ áp dụng cho mọi đường gấp sai.
+- Khi mở phẳng, mọi trục đã khám phá được giữ hiển thị cùng bộ đếm tiến độ.
+
+Đã chạy lại: `npm run lint`, `npm run build`, `git diff --check` — PASS.

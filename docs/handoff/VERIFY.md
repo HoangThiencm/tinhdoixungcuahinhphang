@@ -4,25 +4,24 @@
 PASS
 
 ## Đối chiếu scope
-Đã đối chiếu toàn bộ mã nguồn sau khi sửa với `docs/handoff/PLAN.md`:
-- **Quy tắc ẩn/hiện trục & tâm đối xứng**: Trục đối xứng (`AxisStage`, `PaperCutStage`) và tâm đối xứng `O` (`CenterStage`) hoàn toàn ẩn lúc đầu và trong suốt quá trình kéo trung gian (`0% < progress < 99%`, `1° < angle < 179.5°`); chỉ xuất hiện sau khi gập/xoay chồng khít hoàn toàn (hoặc giữ lại trên hình mở phẳng `0°` sau khi đã khám phá).
-- **Nút "Hiện các trục còn lại"**: Chỉ xuất hiện khi `axisDiscovered && activity.allTrueAxes.length > 1` (không còn hiện trên Con bướm và các hình 1 trục).
-- **Thao tác kéo trực tiếp**: Đã gắn đầy đủ Pointer Drag (`setPointerCapture`, `touchAction: 'none'`, `cursor: grab/grabbing`) trên cả 4 sân khấu (`AxisStage`, `CenterStage`, `PaperCutStage`, `GridCompletionStage`), kèm thanh kéo kiểm tra ưu tiên ở trên (`order-1`) và hàng nút phụ nhỏ gọn (`Tự động chạy`, `Làm lại`, `Mở hình ra`) ở dưới (`order-2`).
-- **Dữ liệu & kiến thức SGK Toán 6**: Con bướm (HĐ1) và Chong chóng hai cánh (HĐ1) đứng đầu mỗi tab; xóa bỏ toàn bộ đường gấp sai / điểm lệch tâm giả tạo trên các hình có đối xứng; Biểu tượng ASEAN, Ngôi sao sáu cánh (6 trục), Tháp Chăm, Bông tuyết, Tam giác đều đầy đủ và khớp viền `renderOutline`.
-- **Giao diện & màn hình hẹp**: Đã xóa câu chữ giáo án thừa và hộp `educationalNote`; danh sách chọn hình luôn hiển thị trên cả màn hình `< 1024px`; trạng thái Git sạch sẽ trên nhánh `main`.
+Đã kiểm tra toàn bộ mã nguồn sau lượt sửa lỗi đối chiếu với `docs/handoff/PLAN.md` và 4 lỗi trong lần xác minh trước:
+- **Gộp sạch các hình trùng lặp**: Bài 21 đã loại bỏ 4 hình lặp (`axis-h53a-butterfly`, `axis-h53b-circle`, `axis-bt52-hexagon`, `axis-bt51-trapezoid`), Bài 22 loại bỏ mục lặp hoa 5 cánh (`center-bt55d`), chia gọn thành 4 nhóm không còn mục mồ côi.
+- **Phân tầng hướng kéo chuẩn sư phạm**: Nhóm vật tự nhiên/đời sống (`Con bướm`, `Chiếc lá`, `Tháp Chăm`, `Cờ Tổ quốc`, `Cỏ ba lá`, `Biểu tượng 5.3c`, `Hình tròn`) chỉ gập theo đúng trục đối xứng thật; nhóm hình phẳng hình học, chữ cái, biển báo, lưới ô vuông hỗ trợ kéo bắt góc thông minh (Dọc / Ngang / Chéo) và ẩn các nút chữ lộ đáp án; Bài 22 lọc sạch các điểm `O′` lệch tâm giả tạo.
+- **Kéo 2 phía, kéo mở ngược & tự hít khít 100% (`Auto-Snap`)**: Khóa `foldSide` một lần duy nhất khi bắt đầu kéo từ trạng thái phẳng, dùng `signedProjection` cho phép cả kéo gập vào (`0 → 1`) lẫn kéo ngược mở ra (`1 → 0`), lưu `latestProgress / latestAngle / latestTimeline` qua `ref` để tự hít khít `100%` (`>= 0.78`), `180°` (`>= 155°`) và hoàn tất mở giấy (`>= maxTimeline - 0.22`) chính xác tuyệt đối.
+- **Hiển thị nổi bật Trục đối xứng & tích lũy đa trục**: Đường trục đối xứng dùng nền sáng trắng `7px` + nét đứt `#E11D48` `3.2px` + huy hiệu `Trục đối xứng d` căn giữa rộng `142px` nổi bật trên mọi màu nền (kể cả Hình lục giác đều màu xanh dương và các bài Gấp & cắt giấy); khi mở phẳng giữ hiển thị toàn bộ các trục đã tìm được kèm bộ đếm `Đã tìm thấy X / N trục đối xứng`; thông báo phản ví dụ phân biệt rõ đường gấp không phải trục đối xứng với hình không có trục đối xứng.
 
 ## Test đã chạy
-- `git status` — PASS (sạch trạng thái rebase, đang ở nhánh `main`).
+- `git status` — PASS (nhánh `main` sạch).
 - `npm run lint` (`tsc --noEmit`) — PASS (0 lỗi).
 - `npm run build` (`vite build`) — PASS (build thành công).
-- Rà soát trực tiếp logic điều kiện hiển thị và sự kiện kéo trên `src/components/AxisStage.tsx`, `src/components/CenterStage.tsx`, `src/components/PaperCutStage.tsx`, `src/components/GridCompletionStage.tsx`, `src/data/axisShapes.tsx`, `src/data/centerShapes.tsx`, `src/App.tsx` — PASS.
+- Rà soát trực tiếp toàn bộ logic kéo, auto-snap, huy hiệu SVG và lọc dữ liệu trong `src/components/AxisStage.tsx`, `src/components/CenterStage.tsx`, `src/components/PaperCutStage.tsx`, `src/data/axisShapes.tsx`, `src/data/centerShapes.tsx`, `src/App.tsx` — PASS.
 
 ## Pass / Fail từng tiêu chí
-- Ẩn trục/tâm ban đầu và trong suốt lúc kéo trung gian, chỉ hiện sau khi chồng khít 100%: PASS
-- Không hiện nút "Hiện các trục còn lại" trên hình chỉ có 1 trục: PASS
-- Kéo trực tiếp mượt mà trên cả 4 sân khấu + thanh kéo chính + nút phụ `Tự động chạy`: PASS
-- Đúng 100% kiến thức & thứ tự bài học SGK Toán 6 (Bài 21 & Bài 22): PASS
-- Hiển thị danh sách hình trên màn hình hẹp `< 1024px` và sạch câu chữ giáo án thừa: PASS
+- Gộp sạch toàn bộ các hình trùng lặp ở Bài 21 & Bài 22: PASS
+- Vật tự nhiên gập theo chủ ý; hình phẳng/chữ cái/biển báo kéo bắt góc thông minh không lộ nút đáp án; Bài 22 sạch điểm lệch tâm giả: PASS
+- Kéo mượt từ cả 2 phía, hỗ trợ kéo ngược mở ra & auto-snap hít khít 100%: PASS
+- Mọi hình có trục/tâm đối xứng sau khi gập/xoay xong đều hiện nổi bật trục/tâm tương phản cao và tích lũy các trục đã tìm được khi mở phẳng: PASS
+- Thông báo phản ví dụ chính xác về kiến thức SGK (ví dụ gập đường chéo Hình chữ nhật): PASS
 - `npm run lint` và `npm run build` thành công 0 lỗi: PASS
 
 ## Bug

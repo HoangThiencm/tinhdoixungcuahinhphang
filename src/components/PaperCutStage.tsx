@@ -25,6 +25,8 @@ export const PaperCutStage: React.FC<PaperCutStageProps> = ({
 }) => {
   const { variant } = activity;
   const dragStart = useRef<{ x: number; timeline: number } | null>(null);
+  const latestTimeline = useRef(timeline);
+  latestTimeline.current = timeline;
   const maxTimeline = Math.max(0, activity.steps.length - 1);
   const isFullyOpen = timeline >= maxTimeline - 0.05;
 
@@ -36,10 +38,15 @@ export const PaperCutStage: React.FC<PaperCutStageProps> = ({
     if (!dragStart.current) return;
     const width = Math.max(event.currentTarget.getBoundingClientRect().width, 1);
     const next = Math.max(0, Math.min(maxTimeline, dragStart.current.timeline + (event.clientX - dragStart.current.x) / width * maxTimeline));
+    latestTimeline.current = next;
     onTimelineChange(next);
   };
   const handlePointerEnd = (event: React.PointerEvent<SVGSVGElement>) => {
     if (event.currentTarget.hasPointerCapture(event.pointerId)) event.currentTarget.releasePointerCapture(event.pointerId);
+    if (latestTimeline.current >= maxTimeline - 0.22) {
+      latestTimeline.current = maxTimeline;
+      onTimelineChange(maxTimeline);
+    }
     dragStart.current = null;
   };
   const svgDragProps = {
@@ -54,9 +61,11 @@ export const PaperCutStage: React.FC<PaperCutStageProps> = ({
   const renderCreaseV = (y1 = -148, y2 = 148, label = 'd') =>
     isFullyOpen ? (
       <g>
-        <line x1="0" y1={y1} x2="0" y2={y2} stroke="#0284C7" strokeWidth="2.4" strokeDasharray="7 5" />
-        <text x="10" y={y1 + 14} fontSize="15" fontWeight="700" fill="#0369A1" fontStyle="italic">
-          {label}
+        <line x1="0" y1={y1} x2="0" y2={y2} stroke="#FFFFFF" strokeWidth="7" opacity="0.95" />
+        <line x1="0" y1={y1} x2="0" y2={y2} stroke="#E11D48" strokeWidth="3.2" strokeDasharray="9 5" />
+        <rect x="8" y={y1} width="112" height="25" rx="12" fill="#FFFFFF" stroke="#E11D48" strokeWidth="1.5" />
+        <text x="16" y={y1 + 17} fontSize="13" fontWeight="800" fill="#BE123C">
+          Trục đối xứng {label}
         </text>
       </g>
     ) : null;
@@ -64,9 +73,11 @@ export const PaperCutStage: React.FC<PaperCutStageProps> = ({
   const renderCreaseH = (x1 = -160, x2 = 160, label = 'd') =>
     isFullyOpen ? (
       <g>
-        <line x1={x1} y1="0" x2={x2} y2="0" stroke="#0284C7" strokeWidth="2.4" strokeDasharray="7 5" />
-        <text x={x2 - 14} y="-10" fontSize="15" fontWeight="700" fill="#0369A1" fontStyle="italic">
-          {label}
+        <line x1={x1} y1="0" x2={x2} y2="0" stroke="#FFFFFF" strokeWidth="7" opacity="0.95" />
+        <line x1={x1} y1="0" x2={x2} y2="0" stroke="#E11D48" strokeWidth="3.2" strokeDasharray="9 5" />
+        <rect x={x2 - 128} y="-31" width="120" height="25" rx="12" fill="#FFFFFF" stroke="#E11D48" strokeWidth="1.5" />
+        <text x={x2 - 120} y="-14" fontSize="13" fontWeight="800" fill="#BE123C">
+          Trục đối xứng {label}
         </text>
       </g>
     ) : null;

@@ -7,9 +7,10 @@ interface AxisStageProps {
   /** Fold progress from 0 (flat) to 1 (fully folded 180°) */
   progress: number;
   showAllAxes: boolean;
-  axisDiscovered: boolean;
+  /** Lines the learner has verified; they remain visible after unfolding. */
+  discoveredLineIds: string[];
   onProgressChange: (progress: number) => void;
-  onAxisDiscovered: () => void;
+  onAxisDiscovered: (lineId: string) => void;
   onSelectLine?: (lineId: string) => void;
   /** Optional custom angle in degrees when using free diameter mode on Circle */
   customDiameterAngle: number | null;
@@ -20,7 +21,7 @@ export const AxisStage: React.FC<AxisStageProps> = ({
   selectedLine,
   progress,
   showAllAxes,
-  axisDiscovered,
+  discoveredLineIds,
   onProgressChange,
   onAxisDiscovered,
   onSelectLine,
@@ -29,10 +30,15 @@ export const AxisStage: React.FC<AxisStageProps> = ({
   const uid = useId().replace(/:/g, '');
   const dragStart = useRef<{ x: number; y: number; progress: number } | null>(null);
   const directionLocked = useRef(false);
-  const activePx = customDiameterAngle !== null ? 0 : selectedLine.px;
-  const activePy = customDiameterAngle !== null ? 0 : selectedLine.py;
-  const activeAngle = customDiameterAngle !== null ? customDiameterAngle : selectedLine.angleDeg;
-  const activeTag = customDiameterAngle !== null ? 'd' : selectedLine.lineTag || 'd';
+  const lockedLine = useRef<CandidateLine | null>(null);
+  const foldSide = useRef<1 | -1>(1);
+  const latestProgress = useRef(progress);
+  latestProgress.current = progress;
+  const locked = lockedLine.current;
+  const activePx = customDiameterAngle !== null ? 0 : (locked?.px ?? selectedLine.px);
+  const activePy = customDiameterAngle !== null ? 0 : (locked?.py ?? selectedLine.py);
+  const activeAngle = customDiameterAngle !== null ? customDiameterAngle : (locked?.angleDeg ?? selectedLine.angleDeg);
+  const activeTag = customDiameterAngle !== null ? 'd' : (locked?.lineTag ?? selectedLine.lineTag) || 'd';
 
   // Exact orthographic 3D projection of a 180° fold across line L(px, py, angleDeg)
   const foldAngleRad = progress * Math.PI;
@@ -41,46 +47,71 @@ export const AxisStage: React.FC<AxisStageProps> = ({
   const cosVal = Math.abs(rawCos) < 0.002 ? (rawCos >= 0 ? 0.002 : -0.002) : rawCos;
   const foldLift = Math.sin(foldAngleRad); // peaks at 1 when halfway (90°)
   const isFoldComplete = progress >= 0.99;
-  const isTrueAxis = customDiameterAngle !== null || selectedLine.isSymmetryAxis;
+  const isTrueAxis = customDiameterAngle !== null || (locked?.isSymmetryAxis ?? selectedLine.isSymmetryAxis);
   // A discovered axis remains visible only when the sheet is fully folded, or
   // when the learner has opened a previously verified sheet completely flat.
-  const shouldShowAxisNow = isTrueAxis && (isFoldComplete || (axisDiscovered && progress <= 0.02));
+  const currentLineId = customDiameterAngle !== null ? `diameter-${customDiameterAngle}` : (locked?.id ?? selectedLine.id);
+  const isCurrentLineDiscovered = discoveredLineIds.includes(currentLineId);
+  const shouldShowAxisNow = isTrueAxis && (isFoldComplete || (isCurrentLineDiscovered && progress <= 0.02));
 
   const handlePointerDown = (event: React.PointerEvent<SVGSVGElement>) => {
     event.currentTarget.setPointerCapture(event.pointerId);
     dragStart.current = { x: event.clientX, y: event.clientY, progress };
     directionLocked.current = progress > 0.02;
+    lockedLine.current = null;
   };
 
   const handlePointerMove = (event: React.PointerEvent<SVGSVGElement>) => {
     if (!dragStart.current) return;
     const dx = event.clientX - dragStart.current.x;
     const dy = event.clientY - dragStart.current.y;
-    if (!directionLocked.current && progress < 0.02 && Math.hypot(dx, dy) > 10 && activity.candidateLines.length > 1 && !customDiameterAngle) {
-      const nearest = activity.candidateLines
-        .filter((line) => line.isSymmetryAxis)
-        .map((line) => {
-          const lineRad = (line.angleDeg * Math.PI) / 180;
-          return { line, score: dx * Math.sin(lineRad) - dy * Math.cos(lineRad) };
-        })
-        .sort((a, b) => b.score - a.score)[0]?.line;
-      if (nearest && nearest.id !== selectedLine.id) onSelectLine?.(nearest.id);
+    if (!directionLocked.current && dragStart.current.progress < 0.03) {
+      if (Math.hypot(dx, dy) <= 8) return;
+      let nearest = selectedLine;
+      if (activity.candidateLines.length > 1 && !customDiameterAngle) {
+        nearest = activity.candidateLines
+          .map((line) => {
+            const lineRad = (line.angleDeg * Math.PI) / 180;
+            return { line, score: Math.abs(dx * Math.sin(lineRad) - dy * Math.cos(lineRad)) };
+          })
+          .sort((a, b) => b.score - a.score)[0]?.line ?? selectedLine;
+        if (nearest.id !== selectedLine.id) onSelectLine?.(nearest.id);
+      }
+      lockedLine.current = nearest;
+      const nearestRad = ((customDiameterAngle ?? nearest.angleDeg) * Math.PI) / 180;
+      const rawProjection = dx * Math.sin(nearestRad) - dy * Math.cos(nearestRad);
+      foldSide.current = rawProjection >= 0 ? 1 : -1;
       directionLocked.current = true;
     }
     const rect = event.currentTarget.getBoundingClientRect();
-    const scale = Math.max(Math.min(rect.width, rect.height) * 0.55, 1);
-    const foldRad = (activeAngle * Math.PI) / 180;
+    const movingLine = lockedLine.current ?? selectedLine;
+    const scale = Math.max(Math.min(rect.width, rect.height) * 0.34, 1);
+    const foldRad = ((customDiameterAngle ?? movingLine.angleDeg) * Math.PI) / 180;
     // Moving half is y_local >= 0. This is the screen direction it travels while folding.
     const ux = Math.sin(foldRad);
     const uy = -Math.cos(foldRad);
     const projection = (event.clientX - dragStart.current.x) * ux + (event.clientY - dragStart.current.y) * uy;
-    const next = Math.max(0, Math.min(1, dragStart.current.progress + projection / scale));
+    const signedProjection = projection * foldSide.current;
+    const next = Math.max(0, Math.min(1, dragStart.current.progress + signedProjection / scale));
+    latestProgress.current = next;
     onProgressChange(next);
-    if (next >= 0.99 && isTrueAxis) onAxisDiscovered();
+    if (next >= 0.99 && (customDiameterAngle !== null || movingLine.isSymmetryAxis)) {
+      onAxisDiscovered(customDiameterAngle !== null ? `diameter-${customDiameterAngle}` : movingLine.id);
+    }
   };
 
   const handlePointerEnd = (event: React.PointerEvent<SVGSVGElement>) => {
     if (event.currentTarget.hasPointerCapture(event.pointerId)) event.currentTarget.releasePointerCapture(event.pointerId);
+    const finalProgress = latestProgress.current;
+    const finalLine = lockedLine.current ?? selectedLine;
+    const finalLineId = customDiameterAngle !== null ? `diameter-${customDiameterAngle}` : finalLine.id;
+    const finalIsTrueAxis = customDiameterAngle !== null || finalLine.isSymmetryAxis;
+    if (finalProgress >= 0.78) {
+      onProgressChange(1);
+      if (finalIsTrueAxis) onAxisDiscovered(finalLineId);
+    } else if (finalProgress <= 0.08) {
+      onProgressChange(0);
+    }
     dragStart.current = null;
   };
 
@@ -96,6 +127,12 @@ export const AxisStage: React.FC<AxisStageProps> = ({
   const labelDist = 148;
   const labelX = activePx + Math.cos(rad) * labelDist + Math.sin(rad) * 14;
   const labelY = activePy + Math.sin(rad) * labelDist - Math.cos(rad) * 14;
+  const pillWidth = 142;
+  const pillX = Math.max(-212, Math.min(212 - pillWidth, labelX - pillWidth / 2));
+  const pillY = Math.max(-166, Math.min(142, labelY - 18));
+  const discoveredAxes = progress <= 0.02
+    ? activity.candidateLines.filter((line) => line.isSymmetryAxis && discoveredLineIds.includes(line.id) && line.id !== currentLineId)
+    : [];
 
   // Moving half transform: T(p) R(a) Scale(1, cos(phi)) R(-a) T(-p)
   const movingTransform = `translate(${activePx}, ${activePy}) rotate(${activeAngle}) scale(1, ${cosVal.toFixed(5)}) rotate(${-activeAngle}) translate(${-activePx}, ${-activePy})`;
@@ -155,7 +192,7 @@ export const AxisStage: React.FC<AxisStageProps> = ({
               y="-600"
               width="1200"
               height="600"
-              transform={`translate(${activePx}, ${activePy}) rotate(${activeAngle})`}
+              transform={`translate(${activePx}, ${activePy}) rotate(${activeAngle + (foldSide.current === -1 ? 180 : 0)})`}
             />
           </clipPath>
 
@@ -166,7 +203,7 @@ export const AxisStage: React.FC<AxisStageProps> = ({
               y="0"
               width="1200"
               height="600"
-              transform={`translate(${activePx}, ${activePy}) rotate(${activeAngle})`}
+              transform={`translate(${activePx}, ${activePy}) rotate(${activeAngle + (foldSide.current === -1 ? 180 : 0)})`}
             />
           </clipPath>
 
@@ -219,7 +256,7 @@ export const AxisStage: React.FC<AxisStageProps> = ({
         <g
           transform={movingTransform}
           filter={progress > 0.02 && progress < 0.98 ? `url(#lift-shadow-${uid})` : undefined}
-          style={!activity.hasSymmetry && isFoldComplete ? { filter: 'drop-shadow(0 0 4px #DC2626)' } : undefined}
+          style={!isTrueAxis && isFoldComplete ? { filter: 'drop-shadow(0 0 4px #DC2626)' } : undefined}
         >
           <g
             clipPath={`url(#clip-moving-${uid})`}
@@ -254,6 +291,21 @@ export const AxisStage: React.FC<AxisStageProps> = ({
 
         {/* Reference overlay (e.g., center O, segment labels A, B) */}
         {shouldShowAxisNow && activity.renderReferenceOverlay && activity.renderReferenceOverlay()}
+
+        {/* Keep every independently verified axis visible after the sheet is reopened. */}
+        {discoveredAxes.map((axis) => {
+          const axisRad = (axis.angleDeg * Math.PI) / 180;
+          const x1 = axis.px - Math.cos(axisRad) * L;
+          const y1 = axis.py - Math.sin(axisRad) * L;
+          const x2 = axis.px + Math.cos(axisRad) * L;
+          const y2 = axis.py + Math.sin(axisRad) * L;
+          return (
+            <g key={`discovered-${axis.id}`} pointerEvents="none">
+              <line x1={x1} y1={y1} x2={x2} y2={y2} stroke="#FFFFFF" strokeWidth="7" opacity="0.95" />
+              <line x1={x1} y1={y1} x2={x2} y2={y2} stroke="#E11D48" strokeWidth="3.2" strokeDasharray="9 5" />
+            </g>
+          );
+        })}
 
         {/* All true symmetry axes overlay (when teacher/student enables "Hiện tất cả trục đối xứng") */}
         {shouldShowAxisNow && showAllAxes &&
@@ -295,20 +347,30 @@ export const AxisStage: React.FC<AxisStageProps> = ({
               y1={ly1}
               x2={lx2}
               y2={ly2}
-              stroke={shouldShowAxisNow ? '#0284C7' : '#F97316'}
-              strokeWidth={shouldShowAxisNow ? '2.8' : '2'}
-              strokeDasharray="9 5"
-              opacity={shouldShowAxisNow ? 1 : 0.75}
+              stroke={shouldShowAxisNow ? '#FFFFFF' : '#F97316'}
+              strokeWidth={shouldShowAxisNow ? '7' : '2'}
+              opacity={shouldShowAxisNow ? 0.95 : 0.75}
             />
+            <line
+              x1={lx1}
+              y1={ly1}
+              x2={lx2}
+              y2={ly2}
+              stroke={shouldShowAxisNow ? '#E11D48' : '#F97316'}
+              strokeWidth={shouldShowAxisNow ? '3.2' : '2'}
+              strokeDasharray="9 5"
+              opacity="1"
+            />
+            {shouldShowAxisNow && <rect x={pillX} y={pillY} width={pillWidth} height="26" rx="13" fill="white" stroke="#E11D48" strokeWidth="1.5" />}
             <text
-              x={Math.max(-200, Math.min(198, labelX))}
-              y={Math.max(-155, Math.min(162, labelY))}
-              fontSize="16"
-              fontWeight="700"
-              fill={shouldShowAxisNow ? '#0369A1' : '#C2410C'}
-              fontStyle="italic"
+              x={shouldShowAxisNow ? pillX + pillWidth / 2 : Math.max(-200, Math.min(198, labelX))}
+              y={shouldShowAxisNow ? pillY + 17 : Math.max(-155, Math.min(162, labelY))}
+              textAnchor={shouldShowAxisNow ? 'middle' : undefined}
+              fontSize={shouldShowAxisNow ? "13" : "16"}
+              fontWeight={shouldShowAxisNow ? "800" : "700"}
+              fill={shouldShowAxisNow ? '#BE123C' : '#C2410C'}
             >
-              {activeTag}
+              {shouldShowAxisNow ? `Trục đối xứng ${activeTag}` : activeTag}
             </text>
           </g>
         )}
@@ -317,10 +379,14 @@ export const AxisStage: React.FC<AxisStageProps> = ({
       {/* Clean unboxed visual legend beneath the canvas */}
       <div className="mt-2.5 flex flex-wrap items-center justify-between gap-2 text-xs text-slate-600 px-1">
         <div className="flex flex-wrap items-center gap-4">
-          {shouldShowAxisNow && (
-            <span className="inline-flex items-center gap-1.5 font-semibold text-sky-800">
+          {isFoldComplete && (
+            <span className={`inline-flex items-center gap-1.5 font-semibold ${isTrueAxis ? 'text-sky-800' : 'text-red-700'}`}>
               <span className="w-5 border-t-2 border-dashed border-sky-600 inline-block" />
-              <span>Hai nửa chồng khít – {activeTag} là trục đối xứng</span>
+              <span>{isTrueAxis
+                ? `Hai nửa chồng khít – ${activeTag} là trục đối xứng`
+                : activity.hasSymmetry
+                  ? 'Hai nửa lệch nhau – Đường này không phải trục đối xứng'
+                  : 'Hai nửa lệch nhau – Hình không có trục đối xứng'}</span>
             </span>
           )}
           {progress > 0.02 && (
@@ -329,10 +395,8 @@ export const AxisStage: React.FC<AxisStageProps> = ({
               <span>Vị trí ban đầu của nửa được gấp</span>
             </span>
           )}
-          {isFoldComplete && (
-            <span className={`inline-flex items-center gap-1.5 font-semibold ${isTrueAxis ? 'text-sky-800' : 'text-red-700'}`}>
-              <span>{isTrueAxis ? 'Hai nửa chồng khít – d là trục đối xứng' : 'Hai nửa không chồng khít – Hình không có trục đối xứng'}</span>
-            </span>
+          {activity.allTrueAxes.length > 1 && discoveredLineIds.length > 0 && (
+            <span className="font-semibold text-rose-700">Đã tìm thấy {discoveredLineIds.length} / {activity.allTrueAxes.length} trục đối xứng</span>
           )}
         </div>
         <span className="font-mono tabular-nums text-slate-500">
