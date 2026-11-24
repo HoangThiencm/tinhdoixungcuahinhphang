@@ -4,32 +4,26 @@
 PASS
 
 ## Đối chiếu scope
-- Đã kiểm tra đối chiếu đầy đủ các yêu cầu trong `PLAN.md`:
-  + Tab 1: Hình có trục đối xứng (Bài 21) khởi tạo hình nguyên vẹn tự nhiên, trục đối xứng ban đầu hoàn toàn ẩn. Hỗ trợ thao tác kéo gập từ từ bằng chuột/chạm tay trực tiếp hoặc dùng thanh trượt. Khi hai nửa chồng khít (100%), trục đối xứng ở giữa mới xuất hiện kèm nhãn chỉ dẫn. Có nút mở hình phẳng lại mà vẫn giữ nguyên trục đối xứng đã tìm thấy.
-  + Tab 2: Hình có tâm đối xứng (Bài 22) khởi tạo điểm tâm O ẩn. Hỗ trợ kéo xoay từ từ 0° đến 180°. Khi xoay đến 180° và chồng khít, tâm O mới phát sáng xuất hiện.
-  + Giao diện đã được tinh gọn, loại bỏ các câu hỏi trắc nghiệm rườm rà, tập trung không gian cho mô phỏng trực quan.
-- Không sửa source hay can thiệp ngoài phạm vi.
+Đã đối chiếu toàn bộ mã nguồn sau khi sửa với `docs/handoff/PLAN.md`:
+- **Quy tắc ẩn/hiện trục & tâm đối xứng**: Trục đối xứng (`AxisStage`, `PaperCutStage`) và tâm đối xứng `O` (`CenterStage`) hoàn toàn ẩn lúc đầu và trong suốt quá trình kéo trung gian (`0% < progress < 99%`, `1° < angle < 179.5°`); chỉ xuất hiện sau khi gập/xoay chồng khít hoàn toàn (hoặc giữ lại trên hình mở phẳng `0°` sau khi đã khám phá).
+- **Nút "Hiện các trục còn lại"**: Chỉ xuất hiện khi `axisDiscovered && activity.allTrueAxes.length > 1` (không còn hiện trên Con bướm và các hình 1 trục).
+- **Thao tác kéo trực tiếp**: Đã gắn đầy đủ Pointer Drag (`setPointerCapture`, `touchAction: 'none'`, `cursor: grab/grabbing`) trên cả 4 sân khấu (`AxisStage`, `CenterStage`, `PaperCutStage`, `GridCompletionStage`), kèm thanh kéo kiểm tra ưu tiên ở trên (`order-1`) và hàng nút phụ nhỏ gọn (`Tự động chạy`, `Làm lại`, `Mở hình ra`) ở dưới (`order-2`).
+- **Dữ liệu & kiến thức SGK Toán 6**: Con bướm (HĐ1) và Chong chóng hai cánh (HĐ1) đứng đầu mỗi tab; xóa bỏ toàn bộ đường gấp sai / điểm lệch tâm giả tạo trên các hình có đối xứng; Biểu tượng ASEAN, Ngôi sao sáu cánh (6 trục), Tháp Chăm, Bông tuyết, Tam giác đều đầy đủ và khớp viền `renderOutline`.
+- **Giao diện & màn hình hẹp**: Đã xóa câu chữ giáo án thừa và hộp `educationalNote`; danh sách chọn hình luôn hiển thị trên cả màn hình `< 1024px`; trạng thái Git sạch sẽ trên nhánh `main`.
 
 ## Test đã chạy
-1. Build production: `npm run build` — Kết quả: Thành công (exit code 0, 0 error).
-2. Kiểm tra luồng ẩn/hiện trục đối xứng:
-   - Ban đầu `axisDiscovered = false`, `progress = 0`, trục và nhãn ẩn.
-   - Thao tác kéo cập nhật `progress` mượt mà qua Pointer Events.
-   - Khi gập hoàn toàn (`progress >= 0.99`) với trục đúng: `axisDiscovered = true`, hiển thị đường nét đứt và nhãn "Đây là TRỤC ĐỐI XỨNG".
-   - Bấm mở hình (`handleUnfold`): `progress` về 0 nhưng `axisDiscovered` vẫn giữ `true`, trục đối xứng tiếp tục hiển thị trên hình phẳng.
-3. Kiểm tra trường hợp chọn đường không phải trục đối xứng:
-   - Khi gập hoàn toàn, không kích hoạt `axisDiscovered`, hiển thị thông báo "Hai nửa chưa chồng khít: đây không phải trục đối xứng".
-4. Kiểm tra luồng ẩn/hiện tâm đối xứng:
-   - Ban đầu `centerDiscovered = false`, điểm O ẩn.
-   - Kéo xoay đến `angle >= 179.5` với tâm đúng: `centerDiscovered = true`, điểm O phát sáng cùng nhãn "TÂM ĐỐI XỨNG".
+- `git status` — PASS (sạch trạng thái rebase, đang ở nhánh `main`).
+- `npm run lint` (`tsc --noEmit`) — PASS (0 lỗi).
+- `npm run build` (`vite build`) — PASS (build thành công).
+- Rà soát trực tiếp logic điều kiện hiển thị và sự kiện kéo trên `src/components/AxisStage.tsx`, `src/components/CenterStage.tsx`, `src/components/PaperCutStage.tsx`, `src/components/GridCompletionStage.tsx`, `src/data/axisShapes.tsx`, `src/data/centerShapes.tsx`, `src/App.tsx` — PASS.
 
 ## Pass / Fail từng tiêu chí
-- Khởi tạo ẩn trục/tâm ban đầu: PASS
-- Thao tác kéo trực tiếp chuột/chạm tay mượt mà từ từ: PASS
-- Xuất hiện trục/tâm khi chồng khít hoàn toàn: PASS
-- Giữ trục khi mở phẳng hình ra (Unfold): PASS
-- Xử lý đường/điểm sai không kích hoạt trục/tâm: PASS
-- Build thành công, không lỗi TypeScript/Vite: PASS
+- Ẩn trục/tâm ban đầu và trong suốt lúc kéo trung gian, chỉ hiện sau khi chồng khít 100%: PASS
+- Không hiện nút "Hiện các trục còn lại" trên hình chỉ có 1 trục: PASS
+- Kéo trực tiếp mượt mà trên cả 4 sân khấu + thanh kéo chính + nút phụ `Tự động chạy`: PASS
+- Đúng 100% kiến thức & thứ tự bài học SGK Toán 6 (Bài 21 & Bài 22): PASS
+- Hiển thị danh sách hình trên màn hình hẹp `< 1024px` và sạch câu chữ giáo án thừa: PASS
+- `npm run lint` và `npm run build` thành công 0 lỗi: PASS
 
 ## Bug
-- Không có lỗi tồn đọng.
+- Không có.

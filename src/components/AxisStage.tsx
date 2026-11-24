@@ -42,7 +42,9 @@ export const AxisStage: React.FC<AxisStageProps> = ({
   const foldLift = Math.sin(foldAngleRad); // peaks at 1 when halfway (90°)
   const isFoldComplete = progress >= 0.99;
   const isTrueAxis = customDiameterAngle !== null || selectedLine.isSymmetryAxis;
-  const showDiscoveredAxis = axisDiscovered || (isFoldComplete && isTrueAxis);
+  // A discovered axis remains visible only when the sheet is fully folded, or
+  // when the learner has opened a previously verified sheet completely flat.
+  const shouldShowAxisNow = isTrueAxis && (isFoldComplete || (axisDiscovered && progress <= 0.02));
 
   const handlePointerDown = (event: React.PointerEvent<SVGSVGElement>) => {
     event.currentTarget.setPointerCapture(event.pointerId);
@@ -217,6 +219,7 @@ export const AxisStage: React.FC<AxisStageProps> = ({
         <g
           transform={movingTransform}
           filter={progress > 0.02 && progress < 0.98 ? `url(#lift-shadow-${uid})` : undefined}
+          style={!activity.hasSymmetry && isFoldComplete ? { filter: 'drop-shadow(0 0 4px #DC2626)' } : undefined}
         >
           <g
             clipPath={`url(#clip-moving-${uid})`}
@@ -232,19 +235,6 @@ export const AxisStage: React.FC<AxisStageProps> = ({
             <g clipPath={`url(#clip-moving-${uid})`} opacity={(progress - 0.55) / 0.45 * 0.32}>
               <g style={{ mixBlendMode: 'multiply' }}>{activity.renderShape()}</g>
             </g>
-          )}
-          {!activity.hasSymmetry && isFoldComplete && (
-            <rect
-              x="-218"
-              y="-173"
-              width="436"
-              height="346"
-              fill="none"
-              stroke="#DC2626"
-              strokeWidth="3"
-              strokeDasharray="10 6"
-              pointerEvents="none"
-            />
           )}
         </g>
 
@@ -263,10 +253,10 @@ export const AxisStage: React.FC<AxisStageProps> = ({
         )}
 
         {/* Reference overlay (e.g., center O, segment labels A, B) */}
-        {showDiscoveredAxis && activity.renderReferenceOverlay && activity.renderReferenceOverlay()}
+        {shouldShowAxisNow && activity.renderReferenceOverlay && activity.renderReferenceOverlay()}
 
         {/* All true symmetry axes overlay (when teacher/student enables "Hiện tất cả trục đối xứng") */}
-        {showDiscoveredAxis && showAllAxes &&
+        {shouldShowAxisNow && showAllAxes &&
           activity.allTrueAxes.map((ax, idx) => {
             const ar = (ax.angleDeg * Math.PI) / 180;
             return (
@@ -297,38 +287,25 @@ export const AxisStage: React.FC<AxisStageProps> = ({
             );
           })}
 
-        {/* The tested crease stays visible, but only true axes receive the blue axis treatment. */}
-        {(progress > 0.02 || showDiscoveredAxis) && (
+        {/* True axes are only revealed after a complete fold (or reopened flat). */}
+        {(shouldShowAxisNow || (!isTrueAxis && isFoldComplete)) && (
           <g>
             <line
               x1={lx1}
               y1={ly1}
               x2={lx2}
               y2={ly2}
-              stroke={isTrueAxis && showDiscoveredAxis ? '#0284C7' : '#F97316'}
-              strokeWidth={isTrueAxis && showDiscoveredAxis ? '2.8' : '2'}
+              stroke={shouldShowAxisNow ? '#0284C7' : '#F97316'}
+              strokeWidth={shouldShowAxisNow ? '2.8' : '2'}
               strokeDasharray="9 5"
-              opacity={isTrueAxis && showDiscoveredAxis ? 1 : 0.75}
+              opacity={shouldShowAxisNow ? 1 : 0.75}
             />
-            {/* Small fold indicator arrow near the line when flat */}
-            {progress < 0.05 && (
-              <g transform={`translate(${activePx}, ${activePy}) rotate(${activeAngle})`}>
-                <path
-                  d="M 110,22 C 122,12 122,-12 110,-22"
-                  fill="none"
-                  stroke="#0284C7"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                />
-                <polygon points="106,-24 115,-22 111,-14" fill="#0284C7" />
-              </g>
-            )}
             <text
               x={Math.max(-200, Math.min(198, labelX))}
               y={Math.max(-155, Math.min(162, labelY))}
               fontSize="16"
               fontWeight="700"
-              fill={isTrueAxis && showDiscoveredAxis ? '#0369A1' : '#C2410C'}
+              fill={shouldShowAxisNow ? '#0369A1' : '#C2410C'}
               fontStyle="italic"
             >
               {activeTag}
@@ -340,10 +317,10 @@ export const AxisStage: React.FC<AxisStageProps> = ({
       {/* Clean unboxed visual legend beneath the canvas */}
       <div className="mt-2.5 flex flex-wrap items-center justify-between gap-2 text-xs text-slate-600 px-1">
         <div className="flex flex-wrap items-center gap-4">
-          {showDiscoveredAxis && (
+          {shouldShowAxisNow && (
             <span className="inline-flex items-center gap-1.5 font-semibold text-sky-800">
               <span className="w-5 border-t-2 border-dashed border-sky-600 inline-block" />
-              <span>Đây là TRỤC ĐỐI XỨNG ({activeTag})</span>
+              <span>Hai nửa chồng khít – {activeTag} là trục đối xứng</span>
             </span>
           )}
           {progress > 0.02 && (

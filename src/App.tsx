@@ -3,13 +3,11 @@ import {
   ChevronLeft,
   ChevronRight,
   FlipHorizontal2,
-  List,
   Pause,
   Play,
   RotateCcw,
   RotateCw,
   Scissors,
-  X,
 } from 'lucide-react';
 import { AXIS_ACTIVITIES, AXIS_GROUPS } from './data/axisShapes';
 import { CENTER_ACTIVITIES, CENTER_GROUPS } from './data/centerShapes';
@@ -22,7 +20,6 @@ import type { LessonTab, SymmetryActivity } from './types/symmetry';
 export default function App() {
   const [activeTab, setActiveTab] = useState<LessonTab>('axis');
   const [selectedActivityId, setSelectedActivityId] = useState<string>(AXIS_ACTIVITIES[0].id);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   // Simulation playback state
   const [progress, setProgress] = useState(0); // normalized 0..1 (axis-fold), 0..180 (center-rotate & grid-complete), 0..maxStep (paper-cut)
@@ -95,12 +92,10 @@ export default function App() {
     setActiveTab(tab);
     const firstAct = tab === 'axis' ? AXIS_ACTIVITIES[0] : CENTER_ACTIVITIES[0];
     setSelectedActivityId(firstAct.id);
-    setMobileMenuOpen(false);
   };
 
   const handleSelectActivity = (id: string) => {
     setSelectedActivityId(id);
-    setMobileMenuOpen(false);
   };
 
   // Animation loop
@@ -192,7 +187,7 @@ export default function App() {
       setShowCounterpart(true);
     }
     setProgress(val);
-    if (activity.mode === 'axis-fold' && val >= 0.99 && activeLine?.isSymmetryAxis) {
+    if (activity.mode === 'axis-fold' && val >= 0.99 && (customDiameterAngle !== null || activeLine?.isSymmetryAxis)) {
       setAxisDiscovered(true);
     }
     if (activity.mode === 'center-rotate' && val >= 179.5 && activePoint?.isSymmetryCenter) {
@@ -244,13 +239,13 @@ export default function App() {
   };
 
   useEffect(() => {
-    if (activity.mode === 'axis-fold' && progress >= 0.99 && activeLine?.isSymmetryAxis) {
+    if (activity.mode === 'axis-fold' && progress >= 0.99 && (customDiameterAngle !== null || activeLine?.isSymmetryAxis)) {
       setAxisDiscovered(true);
     }
     if (activity.mode === 'center-rotate' && progress >= 179.5 && activePoint?.isSymmetryCenter) {
       setCenterDiscovered(true);
     }
-  }, [activity.mode, progress, activeLine, activePoint]);
+  }, [activity.mode, progress, activeLine, activePoint, customDiameterAngle]);
 
   const isAxisTab = activeTab === 'axis';
   const currentPaperStepIdx =
@@ -270,19 +265,7 @@ export default function App() {
               <h1 className="text-lg sm:text-xl font-extrabold tracking-tight text-slate-900 leading-snug">
                 KHÁM PHÁ TÍNH ĐỐI XỨNG CỦA HÌNH PHẲNG
               </h1>
-              <p className="text-xs sm:text-sm text-slate-500 mt-0.5">
-                Học sinh quan sát – dự đoán – thao tác – kiểm tra – giải thích.
-              </p>
             </div>
-            <button
-              type="button"
-              onClick={() => setMobileMenuOpen((v) => !v)}
-              className="lg:hidden inline-flex items-center gap-1.5 px-3 py-2 rounded-lg border border-slate-200 bg-slate-50 text-sm font-semibold text-slate-700 hover:bg-slate-100 whitespace-nowrap shrink-0"
-              aria-label="Mở danh sách hình và hoạt động"
-            >
-              {mobileMenuOpen ? <X className="w-4 h-4" /> : <List className="w-4 h-4" />}
-              <span>Danh sách</span>
-            </button>
           </div>
 
           {/* Two large primary tabs */}
@@ -324,19 +307,12 @@ export default function App() {
       <main className="flex-1 max-w-[1180px] w-full mx-auto px-4 sm:px-6 py-5 grid grid-cols-1 lg:grid-cols-[290px_minmax(0,1fr)] gap-5 items-start">
         {/* LEFT COLUMN: Grouped Activity & Shape Selector */}
         <aside
-          className={`${
-            mobileMenuOpen ? 'block' : 'hidden'
-          } lg:block bg-white border border-slate-200 rounded-xl overflow-hidden lg:sticky lg:top-24`}
+          className="block bg-white border border-slate-200 rounded-xl overflow-hidden lg:sticky lg:top-24"
         >
           <div className="px-4 py-3 border-b border-slate-200 bg-slate-50/70">
             <h2 className="text-sm font-bold text-slate-900">
-              {isAxisTab
-                ? 'Danh mục Bài 21 (5 nhóm hoạt động)'
-                : 'Danh mục Bài 22 (5 nhóm hoạt động)'}
+              {isAxisTab ? 'Chọn hình – Bài 21' : 'Chọn hình – Bài 22'}
             </h2>
-            <p className="text-xs text-slate-500 mt-0.5">
-              Chọn một hình hoặc hoạt động để thực hành
-            </p>
           </div>
 
           <div className="max-h-[40vh] lg:max-h-[calc(100vh-190px)] overflow-y-auto divide-y divide-slate-100">
@@ -400,7 +376,7 @@ export default function App() {
               </div>
 
               <div className="flex flex-wrap items-center gap-2">
-                {activity.mode === 'axis-fold' && axisDiscovered && (
+                {activity.mode === 'axis-fold' && axisDiscovered && activity.allTrueAxes.length > 1 && (
                   <button
                     type="button"
                     onClick={() => setShowAllAxes((value) => !value)}
@@ -445,6 +421,7 @@ export default function App() {
                   activity={activity}
                   timeline={progress}
                   showReference={showReference}
+                  onTimelineChange={handleSliderChange}
                 />
                 {/* Current Step Description */}
                 <div className="mt-3 rounded-lg bg-slate-50 border border-slate-200 px-3.5 py-2.5 text-sm">
@@ -464,15 +441,10 @@ export default function App() {
                 revealAngle={progress}
                 showCounterpart={showCounterpart}
                 showVertexGuides={showReference}
+                onRevealAngleChange={handleSliderChange}
               />
             )}
 
-            {/* Educational Note (e.g., Leaf disclaimer, Circle marker A note, Letter B note) */}
-            {'educationalNote' in activity && activity.educationalNote && (
-              <div className="mt-3.5 rounded-lg bg-amber-50/70 border border-amber-200 px-3.5 py-2.5 text-xs sm:text-sm text-amber-950 leading-relaxed">
-                {activity.educationalNote}
-              </div>
-            )}
           </div>
 
           {/* =================================================================
@@ -483,7 +455,7 @@ export default function App() {
             {activity.mode === 'axis-fold' && activeLine && (activity.candidateLines.length > 1 || activity.allowFreeDiameter) && (
               <div>
                 <div className="text-xs font-semibold text-slate-600 mb-2">
-                  Chọn đường dự đoán để gấp kiểm tra:
+                  Chọn trục gấp:
                 </div>
                 <div className="flex flex-wrap gap-2">
                   {activity.candidateLines.map((line) => {
@@ -609,7 +581,7 @@ export default function App() {
             )}
 
             {/* Small supporting controls: direct dragging and the slider remain primary. */}
-            <div className="flex flex-wrap items-center justify-end gap-2">
+            <div className="order-2 flex flex-wrap items-center justify-end gap-2">
               <div className="flex flex-wrap items-center gap-2">
                 {!isPlaying && !hasStarted && (
                   <button
@@ -687,7 +659,7 @@ export default function App() {
             </div>
 
             {/* Interactive Scrubbing Slider */}
-            <div className="flex flex-col gap-1.5">
+            <div className="order-1 flex flex-col gap-1.5">
               <div className="flex items-center justify-between text-xs font-medium text-slate-600">
                 <label htmlFor="sim-progress-slider">
                   {activity.mode === 'axis-fold'

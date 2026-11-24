@@ -24,16 +24,30 @@ export const CenterStage: React.FC<CenterStageProps> = ({
   const ox = selectedPoint.x;
   const oy = selectedPoint.y;
   const isAt180 = angle >= 179.5;
-  const dragStart = useRef<{ x: number; angle: number } | null>(null);
+  const dragStart = useRef<{ x: number; y: number; angle: number; pointerAngle: number } | null>(null);
+  const shouldShowCenterNow = selectedPoint.isSymmetryCenter && (isAt180 || (centerDiscovered && angle <= 1));
+
+  const pointerAtCenter = (event: React.PointerEvent<SVGSVGElement>) => {
+    const rect = event.currentTarget.getBoundingClientRect();
+    const x = ((event.clientX - rect.left) / rect.width) * 440 - 220;
+    const y = ((event.clientY - rect.top) / rect.height) * 350 - 175;
+    return { x, y, angle: Math.atan2(y - oy, x - ox) };
+  };
 
   const handlePointerDown = (event: React.PointerEvent<SVGSVGElement>) => {
     event.currentTarget.setPointerCapture(event.pointerId);
-    dragStart.current = { x: event.clientX, angle };
+    const point = pointerAtCenter(event);
+    dragStart.current = { x: event.clientX, y: event.clientY, angle, pointerAngle: point.angle };
   };
   const handlePointerMove = (event: React.PointerEvent<SVGSVGElement>) => {
     if (!dragStart.current) return;
+    const point = pointerAtCenter(event);
     const width = Math.max(event.currentTarget.getBoundingClientRect().width, 1);
-    const next = Math.max(0, Math.min(180, dragStart.current.angle + (event.clientX - dragStart.current.x) / width * 180));
+    const distance = Math.hypot(point.x - ox, point.y - oy);
+    const delta = distance > 18
+      ? (point.angle - dragStart.current.pointerAngle) * 180 / Math.PI
+      : (event.clientX - dragStart.current.x) / width * 180;
+    const next = Math.max(0, Math.min(180, dragStart.current.angle + delta));
     onAngleChange(next);
     if (next >= 179.5 && selectedPoint.isSymmetryCenter) onCenterDiscovered();
   };
@@ -154,7 +168,7 @@ export const CenterStage: React.FC<CenterStageProps> = ({
         className="w-full h-auto max-h-[430px] select-none rounded-xl bg-white border border-slate-200"
         role="img"
         aria-label={`Mô phỏng quay 180 độ quanh tâm: ${activity.title}`}
-        style={{ touchAction: 'none', cursor: 'ew-resize' }}
+        style={{ touchAction: 'none', cursor: dragStart.current ? 'grabbing' : 'grab' }}
         onPointerDown={handlePointerDown}
         onPointerMove={handlePointerMove}
         onPointerUp={handlePointerEnd}
@@ -214,10 +228,10 @@ export const CenterStage: React.FC<CenterStageProps> = ({
         {renderMarkerATrail()}
 
         {/* Live angle sweep arc around O */}
-        {showReference && renderAngleArc()}
+        {renderAngleArc()}
 
         {/* Điểm O chỉ xuất hiện sau khi hình đã quay trọn nửa vòng. */}
-        {centerDiscovered && (
+        {shouldShowCenterNow && (
         <g>
           <circle cx={ox} cy={oy} r="7" fill="#FACC15" stroke="#0F172A" strokeWidth="2.4" />
           <circle cx={ox} cy={oy} r="2.2" fill="#0F172A" />
@@ -242,7 +256,7 @@ export const CenterStage: React.FC<CenterStageProps> = ({
             <span className="w-5 border-t-2 border-dashed border-blue-600 inline-block" />
             <span>Viền vị trí ban đầu (cố định)</span>
           </span>
-          {centerDiscovered && (
+          {shouldShowCenterNow && (
             <span className="inline-flex items-center gap-1.5 font-semibold text-teal-800">
               <span className="w-3 h-3 rounded-full bg-yellow-400 border-2 border-slate-900 inline-block" />
               <span>Điểm cố định {selectedPoint.pointTag || 'O'} là TÂM ĐỐI XỨNG</span>

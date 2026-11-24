@@ -11,6 +11,7 @@ Trạng thái: HOÀN THÀNH
 - Làm sạch dữ liệu trục/tâm: hình đối xứng chỉ còn các lựa chọn đúng, còn hình không đối xứng vẫn có nếp gấp kiểm chứng.
 - Đưa Con bướm và Chong chóng hai cánh trở lại hoạt động mặc định; chỉnh Biểu tượng ASEAN, sao sáu cánh và bông tuyết đối xứng đúng.
 - Ưu tiên kéo trực tiếp bằng gợi ý trên cả bốn mô phỏng, tự chọn trục gần hướng kéo đầu tiên cho hình nhiều trục và tinh gọn các nút điều khiển thành nút phụ.
+- Sửa toàn bộ lỗi trong `VERIFY.md`: trục/tâm chỉ lộ sau khi thao tác hoàn tất (hoặc khi đã mở phẳng sau khám phá), giấy và lưới nhận Pointer Drag, danh sách hình không bị ẩn trên màn hình hẹp và các viền ASEAN/bông tuyết khớp hình gốc.
 
 ## Tệp đã thay đổi
 
@@ -31,4 +32,4 @@ Trạng thái: HOÀN THÀNH
 ## Ghi chú
 
 - Các kiểm tra tự động đã đạt; build vẫn hiển thị cảnh báo Vite có sẵn về `__dirname`.
-- Đã đẩy lên GitHub theo yêu cầu sau khi kiểm tra đạt.
+- Không commit hoặc push trong lượt sửa lỗi xác minh này.
