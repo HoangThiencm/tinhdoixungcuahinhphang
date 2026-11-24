@@ -4,13 +4,23 @@ Trạng thái: HOÀN THÀNH
 
 ## Phạm vi triển khai
 
-- Khởi tạo kho Git cục bộ trên nhánh `main`.
-- Thêm `.gitignore` để không đưa `node_modules/`, `dist/`, `.env*` và `docs/handoff/.lock` vào kho mã.
-- Commit toàn bộ nội dung còn lại và đẩy lên kho GitHub đã chỉ định.
+- Chuẩn hóa kéo gấp theo pháp tuyến cho gấp ngang, dọc, chéo và đường kính tự do.
+- Thêm kéo trực tiếp cho quay, gấp/cắt giấy và lưới ô vuông.
+- Bổ sung Tháp Chăm, ngôi sao sáu cánh, tam giác đều, biểu tượng ASEAN và bông tuyết.
+- Danh sách hình luôn hiện trên màn hình hẹp; rút gọn nhãn và bỏ ghi chú dài.
+- Làm sạch dữ liệu trục/tâm: hình đối xứng chỉ còn các lựa chọn đúng, còn hình không đối xứng vẫn có nếp gấp kiểm chứng.
+- Đưa Con bướm và Chong chóng hai cánh trở lại hoạt động mặc định; chỉnh Biểu tượng ASEAN, sao sáu cánh và bông tuyết đối xứng đúng.
+- Ưu tiên kéo trực tiếp bằng gợi ý trên cả bốn mô phỏng, tự chọn trục gần hướng kéo đầu tiên cho hình nhiều trục và tinh gọn các nút điều khiển thành nút phụ.
 
 ## Tệp đã thay đổi
 
-- `.gitignore`
+- `src/App.tsx`
+- `src/components/AxisStage.tsx`
+- `src/components/CenterStage.tsx`
+- `src/components/PaperCutStage.tsx`
+- `src/components/GridCompletionStage.tsx`
+- `src/data/axisShapes.tsx`
+- `src/data/centerShapes.tsx`
 - `docs/handoff/IMPLEMENT.md`
 
 ## Kiểm tra đã chạy
@@ -20,5 +30,5 @@ Trạng thái: HOÀN THÀNH
 
 ## Ghi chú
 
-- Commit đầu tiên đã được đẩy lên `origin/main`.
-- Sau khi đẩy nhánh thành công, tệp khóa `docs/handoff/.lock` được xóa khỏi thư mục làm việc theo yêu cầu. Tệp này luôn bị Git bỏ qua.
+- Các kiểm tra tự động đã đạt; build vẫn hiển thị cảnh báo Vite có sẵn về `__dirname`.
+- Đã đẩy lên GitHub theo yêu cầu sau khi kiểm tra đạt.

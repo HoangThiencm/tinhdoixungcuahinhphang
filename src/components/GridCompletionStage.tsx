@@ -77,6 +77,14 @@ export const GridCompletionStage: React.FC<GridCompletionStageProps> = ({
         />
         <g>{gridLines}</g>
 
+        {revealAngle < 1 && (
+          <g pointerEvents="none" opacity="0.82">
+            <path d="M 34,-42 A 54,54 0 0,1 55,14" fill="none" stroke="#0F766E" strokeWidth="2.4" strokeLinecap="round" />
+            <polygon points="59,18 48,13 52,25" fill="#0F766E" />
+            <text x="28" y="82" fontSize="14" fontWeight="700" fill="#0F766E">Kéo để xoay</text>
+          </g>
+        )}
+
         {/* Original given polygon */}
         <polygon
           points={givenPointsStr}

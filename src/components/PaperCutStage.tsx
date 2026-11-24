@@ -54,6 +54,14 @@ export const PaperCutStage: React.FC<PaperCutStageProps> = ({
     </g>
   );
 
+  const renderDragHint = () => timeline < 0.02 ? (
+    <g pointerEvents="none" opacity="0.82">
+      <path d="M -52,126 C -18,145 18,145 52,126" fill="none" stroke="#0284C7" strokeWidth="2.4" strokeLinecap="round" />
+      <polygon points="57,123 45,124 52,134" fill="#0284C7" />
+      <text x="-43" y="156" fontSize="14" fontWeight="700" fill="#0369A1">Kéo để mở</text>
+    </g>
+  ) : null;
+
   // =========================================================================
   // 1. SINGLE-FOLD CUT-FROM-SHEET ACTIVITIES (4 steps: 0..3)
   //    hd3-h52, cut-letter-A, cut-letter-E, cut-letter-T
@@ -110,6 +118,7 @@ export const PaperCutStage: React.FC<PaperCutStageProps> = ({
           role="img"
           aria-label={`Mô phỏng gấp cắt giấy: ${activity.title}`}
         >
+          {renderDragHint()}
           {/* Stationary half of paper */}
           {!isHoriz ? (
             <rect
@@ -234,6 +243,7 @@ export const PaperCutStage: React.FC<PaperCutStageProps> = ({
         role="img"
         aria-label={`Mở giấy: ${activity.title}`}
       >
+        {renderDragHint()}
         {/* Fixed half */}
         <path
           d={halfShapePath[variant]}
@@ -282,6 +292,7 @@ export const PaperCutStage: React.FC<PaperCutStageProps> = ({
         role="img"
         aria-label={`Dự đoán khi mở giấy: ${activity.title}`}
       >
+        {renderDragHint()}
         {/* Fixed cut half */}
         <path
           d={pathMap[variant]}
@@ -398,6 +409,7 @@ export const PaperCutStage: React.FC<PaperCutStageProps> = ({
           role="img"
           aria-label={`Gấp và cắt giấy: ${activity.title}`}
         >
+          {renderDragHint()}
           {/* Faint footprint of original square once folded */}
           {fold1T > 0.2 && (
             <rect
@@ -500,6 +512,7 @@ export const PaperCutStage: React.FC<PaperCutStageProps> = ({
           role="img"
           aria-label={`Mở hình: ${activity.title}`}
         >
+          {renderDragHint()}
           {/* Top-left fixed quarter */}
           <path d={quarterPath} fill={palette.fill} stroke={palette.stroke} strokeWidth="2.5" strokeLinejoin="round" />
           {/* Top-right unfolding quarter */}
@@ -538,6 +551,7 @@ export const PaperCutStage: React.FC<PaperCutStageProps> = ({
           role="img"
           aria-label={`Quay 180 độ kiểm tra tâm đối xứng: ${activity.title}`}
         >
+          {renderDragHint()}
           {renderCreaseV(-145, 145, '')}
           {renderCreaseH(-145, 145, '')}
 
@@ -584,6 +598,7 @@ export const PaperCutStage: React.FC<PaperCutStageProps> = ({
       role="img"
       aria-label={`Mở mảnh giấy gấp tư: ${activity.title}`}
     >
+      {renderDragHint()}
       {/* Fixed top-left quarter */}
       <path d={quarterLetterPath} fill="#EF4444" stroke="#991B1B" strokeWidth="2.4" strokeLinejoin="round" />
 

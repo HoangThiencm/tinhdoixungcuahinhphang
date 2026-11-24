@@ -9,7 +9,6 @@ import {
   RotateCcw,
   RotateCw,
   Scissors,
-  Sparkles,
   X,
 } from 'lucide-react';
 import { AXIS_ACTIVITIES, AXIS_GROUPS } from './data/axisShapes';
@@ -19,14 +18,6 @@ import { CenterStage } from './components/CenterStage';
 import { PaperCutStage } from './components/PaperCutStage';
 import { GridCompletionStage } from './components/GridCompletionStage';
 import type { LessonTab, SymmetryActivity } from './types/symmetry';
-
-type PlaySpeed = 'slow' | 'normal' | 'fast';
-
-const SPEED_MULT: Record<PlaySpeed, number> = {
-  slow: 0.55,
-  normal: 1,
-  fast: 1.75,
-};
 
 export default function App() {
   const [activeTab, setActiveTab] = useState<LessonTab>('axis');
@@ -39,7 +30,6 @@ export default function App() {
   const [hasStarted, setHasStarted] = useState(false);
   const [axisDiscovered, setAxisDiscovered] = useState(false);
   const [centerDiscovered, setCenterDiscovered] = useState(false);
-  const [speed, setSpeed] = useState<PlaySpeed>('normal');
 
   // Reference & display toggles
   const [showReference, setShowReference] = useState(true);
@@ -131,11 +121,11 @@ export default function App() {
       setProgress((prev) => {
         let rate = 0.55; // default units/sec
         if (activity.mode === 'axis-fold') {
-          rate = 0.55 * SPEED_MULT[speed]; // ~1.8s full fold
+          rate = 0.385; // ~2.6s full fold
         } else if (activity.mode === 'center-rotate' || activity.mode === 'grid-complete') {
-          rate = 75 * SPEED_MULT[speed]; // ~2.4s full 180° rotation
+          rate = 69; // ~2.6s full 180° rotation
         } else if (activity.mode === 'paper-cut') {
-          rate = 0.72 * SPEED_MULT[speed]; // ~1.4s per step
+          rate = 0.55; // deliberately slow for classroom demonstration
         }
 
         const next = prev + rate * dt;
@@ -154,7 +144,7 @@ export default function App() {
       if (rafRef.current !== null) cancelAnimationFrame(rafRef.current);
       lastTimeRef.current = null;
     };
-  }, [isPlaying, speed, activity.mode, maxProgress]);
+  }, [isPlaying, activity.mode, maxProgress]);
 
   // Playback handlers
   const handleStart = () => {
@@ -349,7 +339,7 @@ export default function App() {
             </p>
           </div>
 
-          <div className="max-h-[68vh] lg:max-h-[calc(100vh-190px)] overflow-y-auto divide-y divide-slate-100">
+          <div className="max-h-[40vh] lg:max-h-[calc(100vh-190px)] overflow-y-auto divide-y divide-slate-100">
             {groups.map((grp) => {
               const items = activities.filter((a) => a.groupId === grp.id);
               return (
@@ -432,6 +422,7 @@ export default function App() {
                 axisDiscovered={axisDiscovered}
                 onProgressChange={handleSliderChange}
                 onAxisDiscovered={() => setAxisDiscovered(true)}
+                onSelectLine={handleSelectCandidateLine}
                 customDiameterAngle={customDiameterAngle}
               />
             )}
@@ -489,7 +480,7 @@ export default function App() {
           ================================================================= */}
           <div className="bg-white border border-slate-200 rounded-xl p-4 sm:p-5 flex flex-col gap-4">
             {/* Candidate Fold Line Picker (Tab 1) */}
-            {activity.mode === 'axis-fold' && activeLine && (
+            {activity.mode === 'axis-fold' && activeLine && (activity.candidateLines.length > 1 || activity.allowFreeDiameter) && (
               <div>
                 <div className="text-xs font-semibold text-slate-600 mb-2">
                   Chọn đường dự đoán để gấp kiểm tra:
@@ -617,39 +608,14 @@ export default function App() {
               </div>
             )}
 
-            {/* Grid-Completion Dedicated Quick Action */}
-            {activity.mode === 'grid-complete' && (
-              <div className="flex flex-wrap items-center gap-2.5">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowCounterpart(true);
-                    setHasStarted(true);
-                    if (progress >= 179) {
-                      setProgress(0);
-                    }
-                    setIsPlaying(true);
-                  }}
-                  className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-teal-600 hover:bg-teal-700 text-white text-sm font-semibold transition-colors whitespace-nowrap"
-                >
-                  <Sparkles className="w-4 h-4 shrink-0" />
-                  <span>Hiện phần hình tương ứng (quay 180° quanh O)</span>
-                </button>
-              </div>
-            )}
-
-            {/* Primary Playback Controls Row: Bắt đầu / Tạm dừng / Tiếp tục / Làm lại + Speed */}
-            <div className="flex flex-wrap items-center justify-between gap-3">
+            {/* Small supporting controls: direct dragging and the slider remain primary. */}
+            <div className="flex flex-wrap items-center justify-end gap-2">
               <div className="flex flex-wrap items-center gap-2">
                 {!isPlaying && !hasStarted && (
                   <button
                     type="button"
                     onClick={handleStart}
-                    className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold text-white transition-colors whitespace-nowrap ${
-                      isAxisTab
-                        ? 'bg-sky-600 hover:bg-sky-700'
-                        : 'bg-teal-600 hover:bg-teal-700'
-                    }`}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-300 bg-white hover:bg-slate-50 text-xs font-semibold text-slate-700 transition-colors whitespace-nowrap"
                   >
                     <Play className="w-4 h-4 shrink-0" />
                     <span>
@@ -657,10 +623,10 @@ export default function App() {
                       (activity.variant.startsWith('h55') || activity.variant.startsWith('b510'))
                         ? 'Mở giấy'
                         : activity.mode === 'axis-fold'
-                          ? 'Tự động gập'
+                          ? 'Tự động chạy'
                           : activity.mode === 'center-rotate'
-                            ? 'Tự động xoay'
-                            : 'Bắt đầu'}
+                            ? 'Tự động chạy'
+                            : 'Tự động chạy'}
                     </span>
                   </button>
                 )}
@@ -669,7 +635,7 @@ export default function App() {
                   <button
                     type="button"
                     onClick={handlePause}
-                    className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-amber-500 hover:bg-amber-600 text-white text-sm font-semibold transition-colors whitespace-nowrap"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-amber-300 bg-amber-50 hover:bg-amber-100 text-xs font-semibold text-amber-800 transition-colors whitespace-nowrap"
                   >
                     <Pause className="w-4 h-4 shrink-0" />
                     <span>Tạm dừng</span>
@@ -680,11 +646,7 @@ export default function App() {
                   <button
                     type="button"
                     onClick={handleResume}
-                    className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold text-white transition-colors whitespace-nowrap ${
-                      isAxisTab
-                        ? 'bg-sky-600 hover:bg-sky-700'
-                        : 'bg-teal-600 hover:bg-teal-700'
-                    }`}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-300 bg-white hover:bg-slate-50 text-xs font-semibold text-slate-700 transition-colors whitespace-nowrap"
                   >
                     <Play className="w-4 h-4 shrink-0" />
                     <span>Tiếp tục</span>
@@ -695,21 +657,17 @@ export default function App() {
                   <button
                     type="button"
                     onClick={handleStart}
-                    className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-lg text-sm font-semibold text-white transition-colors whitespace-nowrap ${
-                      isAxisTab
-                        ? 'bg-sky-600 hover:bg-sky-700'
-                        : 'bg-teal-600 hover:bg-teal-700'
-                    }`}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-300 bg-white hover:bg-slate-50 text-xs font-semibold text-slate-700 transition-colors whitespace-nowrap"
                   >
                     <Play className="w-4 h-4 shrink-0" />
-                    <span>Xem lại</span>
+                    <span>Chạy lại</span>
                   </button>
                 )}
 
                 <button
                   type="button"
                   onClick={handleReset}
-                  className="inline-flex items-center gap-2 px-3.5 py-2.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 text-slate-700 text-sm font-semibold transition-colors whitespace-nowrap"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 text-xs font-semibold transition-colors whitespace-nowrap"
                 >
                   <RotateCcw className="w-4 h-4 shrink-0" />
                   <span>Làm lại</span>
@@ -718,7 +676,7 @@ export default function App() {
                   <button
                     type="button"
                     onClick={handleUnfold}
-                    className="inline-flex items-center gap-2 px-3.5 py-2.5 rounded-lg border border-sky-200 bg-sky-50 hover:bg-sky-100 text-sky-800 text-sm font-semibold transition-colors whitespace-nowrap"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-sky-200 bg-sky-50 hover:bg-sky-100 text-sky-800 text-xs font-semibold transition-colors whitespace-nowrap"
                   >
                     <FlipHorizontal2 className="w-4 h-4 shrink-0" />
                     <span>Mở hình ra</span>
@@ -726,30 +684,6 @@ export default function App() {
                 )}
               </div>
 
-              {/* Speed Selector */}
-              <div className="flex items-center gap-1.5 text-xs">
-                <span className="text-slate-500 font-medium mr-1">Tốc độ:</span>
-                {(
-                  [
-                    { id: 'slow', label: 'Chậm' },
-                    { id: 'normal', label: 'Vừa' },
-                    { id: 'fast', label: 'Nhanh' },
-                  ] as const
-                ).map((sp) => (
-                  <button
-                    key={sp.id}
-                    type="button"
-                    onClick={() => setSpeed(sp.id)}
-                    className={`px-2.5 py-1.5 rounded-md font-semibold transition-colors whitespace-nowrap ${
-                      speed === sp.id
-                        ? 'bg-slate-800 text-white'
-                        : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                    }`}
-                  >
-                    {sp.label}
-                  </button>
-                ))}
-              </div>
             </div>
 
             {/* Interactive Scrubbing Slider */}

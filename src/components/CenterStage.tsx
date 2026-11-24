@@ -162,6 +162,14 @@ export const CenterStage: React.FC<CenterStageProps> = ({
       >
         {renderGrid()}
 
+        {angle < 1 && (
+          <g pointerEvents="none" opacity="0.82">
+            <path d={`M ${ox + 42},${oy - 34} A 54,54 0 0,1 ${ox + 54},${oy + 18}`} fill="none" stroke="#0F766E" strokeWidth="2.4" strokeLinecap="round" />
+            <polygon points={`${ox + 57},${oy + 22} ${ox + 47},${oy + 17} ${ox + 50},${oy + 28}`} fill="#0F766E" />
+            <text x={ox + 38} y={oy + 78} fontSize="14" fontWeight="700" fill="#0F766E">Kéo để xoay</text>
+          </g>
+        )}
+
         {/* Optional reference lines (diagonals / midpoint ticks) */}
         {showReference && activity.renderReferenceOverlay && (
           <g opacity="0.85">{activity.renderReferenceOverlay()}</g>
